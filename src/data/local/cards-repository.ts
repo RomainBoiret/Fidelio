@@ -6,7 +6,6 @@ import {
   nowIso,
 } from '@/data/local/card-factory';
 import type {
-  Category,
   CreateLoyaltyCardInput,
   LoyaltyCard,
   UpdateLoyaltyCardInput,
@@ -67,17 +66,6 @@ function mapCard(row: Record<string, unknown>): LoyaltyCard {
     notes: row.notes == null ? null : String(row.notes),
     categoryId: row.category_id == null ? null : String(row.category_id),
     accentColor: row.accent_color == null ? null : String(row.accent_color),
-    createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at),
-    deletedAt: row.deleted_at == null ? null : String(row.deleted_at),
-  };
-}
-
-function mapCategory(row: Record<string, unknown>): Category {
-  return {
-    id: String(row.id),
-    name: String(row.name),
-    color: String(row.color),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
     deletedAt: row.deleted_at == null ? null : String(row.deleted_at),
@@ -165,14 +153,6 @@ export async function softDeleteCard(id: string): Promise<void> {
     `UPDATE cards SET deleted_at = ?, updated_at = ? WHERE id = ?`,
     [nowIso(), nowIso(), id],
   );
-}
-
-export async function listCategories(): Promise<Category[]> {
-  const db = await getDb();
-  const rows = await db.getAllAsync<Record<string, unknown>>(
-    `SELECT * FROM categories WHERE deleted_at IS NULL ORDER BY name ASC`,
-  );
-  return rows.map(mapCategory);
 }
 
 export async function ensureReady(): Promise<void> {

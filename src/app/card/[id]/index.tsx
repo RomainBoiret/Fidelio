@@ -132,7 +132,7 @@ export default function CardDetailScreen() {
 
   if (!card) {
     return (
-      <Screen ambient={false}>
+      <Screen>
         <Text style={{ color: colors.text, fontFamily: Fonts.display }}>
           Carte introuvable
         </Text>
@@ -142,7 +142,7 @@ export default function CardDetailScreen() {
   }
 
   return (
-    <Screen scroll padded={false} ambient={false} edges={['left', 'right']}>
+    <Screen scroll padded={false} edges={['left', 'right']}>
       <View style={{ backgroundColor: colors.accentDeep }}>
         <View
           style={[
@@ -291,10 +291,6 @@ const styles = StyleSheet.create({
   codeValue: {
     fontSize: 28,
     letterSpacing: 1,
-  },
-  codeHint: {
-    fontSize: 13,
-    lineHeight: 18,
   },
   form: {
     gap: Spacing.lg,

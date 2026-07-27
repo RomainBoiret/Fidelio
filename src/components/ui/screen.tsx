@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Platform, ScrollView, StyleSheet, View, type ViewProps } from 'react-native';
+import { ScrollView, StyleSheet, View, type ViewProps } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
-import { AmbientBackground } from '@/components/ui/ambient-background';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -11,8 +10,7 @@ type Props = ViewProps & {
   scroll?: boolean;
   padded?: boolean;
   withTabInset?: boolean;
-  ambient?: boolean;
-  /** Override safe-area edges. Use `['left','right']` under CurveHero so purple bleeds under status bar. */
+  /** Override safe-area edges. Use `['left','right']` under CurveHero so the hero bleeds under status bar. */
   edges?: Edge[];
 };
 
@@ -21,7 +19,6 @@ export function Screen({
   scroll = false,
   padded = true,
   withTabInset = false,
-  ambient = Platform.OS !== 'web',
   edges = ['top', 'left', 'right'],
   style,
   ...rest
@@ -51,7 +48,6 @@ export function Screen({
       style={[styles.safe, { backgroundColor: colors.background }]}
       edges={edges}
     >
-      {ambient ? <AmbientBackground /> : null}
       {scroll ? (
         <ScrollView
           contentContainerStyle={styles.scrollContent}

@@ -48,7 +48,7 @@ export default function NewCardScreen() {
   }
 
   return (
-    <Screen scroll padded={false} ambient={false} edges={['left', 'right']}>
+    <Screen scroll padded={false} edges={['left', 'right']}>
       <CurveHero
         eyebrow="Nouvelle carte"
         title="Ajout manuel"

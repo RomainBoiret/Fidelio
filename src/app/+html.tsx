@@ -19,7 +19,7 @@ export default function Root({ children }: PropsWithChildren) {
           name="description"
           content="Fidelio range tes cartes de fidélité : scan, coffre local, accès rapide en caisse — même hors ligne."
         />
-        <meta name="theme-color" content="#EEF1F6" />
+        <meta name="theme-color" content="#2A2560" />
         <meta name="application-name" content="Fidelio" />
         <meta property="og:title" content="Fidelio — Cartes de fidélité" />
         <meta
@@ -38,18 +38,18 @@ export default function Root({ children }: PropsWithChildren) {
 const responsiveBackground = `
   html, body, #root {
     min-height: 100%;
-    background-color: #EEF1F6;
+    background-color: #F3F2F8;
   }
   body {
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    color: #14171F;
+    color: #14122A;
   }
   @media (prefers-color-scheme: dark) {
     html, body, #root {
-      background-color: #0C0E14;
+      background-color: #0E0C1A;
     }
     body {
-      color: #F3F5FA;
+      color: #F4F3FA;
     }
   }
 `;

@@ -114,7 +114,7 @@ export default function ScanScreen() {
 
   if (!permission) {
     return (
-      <Screen withTabInset ambient={false} padded={false} edges={['left', 'right']}>
+      <Screen withTabInset padded={false} edges={['left', 'right']}>
         <CurveHero eyebrow="Scan" title="Préparation…" height={220} />
       </Screen>
     );
@@ -122,7 +122,7 @@ export default function ScanScreen() {
 
   if (!permission.granted) {
     return (
-      <Screen withTabInset ambient={false} padded={false} edges={['left', 'right']}>
+      <Screen withTabInset padded={false} edges={['left', 'right']}>
         <CurveHero
           eyebrow="Caméra"
           title="Autoriser le scan"
@@ -144,7 +144,7 @@ export default function ScanScreen() {
   }
 
   return (
-    <Screen withTabInset padded={false} ambient={false} edges={['left', 'right']}>
+    <Screen withTabInset padded={false} edges={['left', 'right']}>
       <CurveHero
         eyebrow="Scan express"
         title="Vise le code-barres"

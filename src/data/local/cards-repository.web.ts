@@ -95,12 +95,6 @@ export async function softDeleteCard(id: string): Promise<void> {
   writeStore(store);
 }
 
-export async function listCategories(): Promise<Category[]> {
-  return readStore()
-    .categories.filter((category) => category.deletedAt == null)
-    .sort((a, b) => a.name.localeCompare(b.name));
-}
-
 export async function ensureReady(): Promise<void> {
   readStore();
 }

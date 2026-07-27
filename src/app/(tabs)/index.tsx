@@ -31,7 +31,7 @@ export default function CardsScreen() {
   const { cards, loading, error, refresh } = useCards();
 
   return (
-    <Screen withTabInset padded={false} ambient={false} edges={['left', 'right']}>
+    <Screen withTabInset padded={false} edges={['left', 'right']}>
       <CurveHero
         eyebrow={greetingForNow()}
         title="Tes cartes, prêtes en caisse"

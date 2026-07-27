@@ -30,7 +30,7 @@ export default function SettingsScreen() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <Screen withTabInset scroll padded={false} ambient={false} edges={['left', 'right']}>
+    <Screen withTabInset scroll padded={false} edges={['left', 'right']}>
       <CurveHero
         eyebrow="Réglages"
         title="La suite arrive"
