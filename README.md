@@ -59,11 +59,3 @@ src/
     store/             # context React
   domain/              # types & règles métier
 ```
-
-## Jalons
-
-1. ~~Local core + ajout manuel~~
-2. ~~Scan caméra (création rapide)~~
-3. ~~Affichage barcode plein écran~~
-4. Catégories + recherche
-5. Auth + sync Supabase
