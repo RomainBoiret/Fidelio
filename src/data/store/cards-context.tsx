@@ -37,7 +37,7 @@ export function CardsProvider({ children }: { children: React.ReactNode }) {
       setCards(next);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Impossible de charger les cartes.',
+        err instanceof Error ? err.message : 'Could not load cards.',
       );
     } finally {
       setLoading(false);

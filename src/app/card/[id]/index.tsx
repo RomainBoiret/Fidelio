@@ -59,12 +59,12 @@ export default function CardDetailScreen() {
 
   const onSave = React.useCallback(async () => {
     if (!id) {
-      setError('Identifiant de carte manquant.');
+      setError('Missing card id.');
       return;
     }
 
-    const nextTitle = title.trim() || 'Carte scannée';
-    const nextStore = storeName.trim() || 'Magasin';
+    const nextTitle = title.trim() || 'Scanned card';
+    const nextStore = storeName.trim() || 'Store';
 
     setSaving(true);
     setError(null);
@@ -78,7 +78,7 @@ export default function CardDetailScreen() {
       });
 
       if (!updated) {
-        throw new Error('Impossible de trouver cette carte pour l’enregistrer.');
+        throw new Error('Could not find this card to save it.');
       }
 
       setTitle(updated.title);
@@ -90,9 +90,9 @@ export default function CardDetailScreen() {
       router.replace('/');
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Enregistrement impossible.';
+        err instanceof Error ? err.message : 'Could not save.';
       setError(message);
-      notify('Enregistrement échoué', message);
+      notify('Save failed', message);
     } finally {
       setSaving(false);
     }
@@ -103,7 +103,7 @@ export default function CardDetailScreen() {
 
     const confirmed =
       Platform.OS === 'web'
-        ? window.confirm('Supprimer cette carte ? Tu pourras la rescanner plus tard.')
+        ? window.confirm('Delete this card? You can scan it again later.')
         : null;
 
     if (Platform.OS === 'web') {
@@ -115,10 +115,10 @@ export default function CardDetailScreen() {
       return;
     }
 
-    Alert.alert('Supprimer cette carte ?', 'Tu pourras la rescanner plus tard.', [
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert('Delete this card?', 'You can scan it again later.', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Supprimer',
+        text: 'Delete',
         style: 'destructive',
         onPress: () => {
           void (async () => {
@@ -134,9 +134,9 @@ export default function CardDetailScreen() {
     return (
       <Screen>
         <Text style={{ color: colors.text, fontFamily: Fonts.display }}>
-          Carte introuvable
+          Card not found
         </Text>
-        <Button label="Retour" variant="secondary" onPress={() => router.back()} />
+        <Button label="Back" variant="secondary" onPress={() => router.back()} />
       </Screen>
     );
   }
@@ -186,7 +186,7 @@ export default function CardDetailScreen() {
           <Text
             style={[styles.codeLabel, { color: colors.textMuted, fontFamily: Fonts.bodyMedium }]}
           >
-            Code en caisse
+            Checkout code
           </Text>
           <Text
             selectable
@@ -195,15 +195,15 @@ export default function CardDetailScreen() {
             {card.codeValue}
           </Text>
           <Button
-            label="Montrer en caisse"
+            label="Show at checkout"
             onPress={() => router.push(`/card/${card.id}/present`)}
             style={{ marginTop: Spacing.md }}
           />
         </SoftCard>
 
         <View style={styles.form}>
-          <TextField label="Nom" value={title} onChangeText={setTitle} />
-          <TextField label="Magasin" value={storeName} onChangeText={setStoreName} />
+          <TextField label="Name" value={title} onChangeText={setTitle} />
+          <TextField label="Store" value={storeName} onChangeText={setStoreName} />
           <TextField
             label="Notes"
             value={notes}
@@ -220,14 +220,14 @@ export default function CardDetailScreen() {
         <View style={styles.actions}>
           <Button
             label={
-              saving ? 'Enregistrement…' : savedFlash ? 'Enregistré ✓' : 'Enregistrer'
+              saving ? 'Saving…' : savedFlash ? 'Saved ✓' : 'Save'
             }
             onPress={() => {
               void onSave();
             }}
             disabled={saving || savedFlash}
           />
-          <Button label="Supprimer" variant="ghost" onPress={onDelete} disabled={saving} />
+          <Button label="Delete" variant="ghost" onPress={onDelete} disabled={saving} />
         </View>
       </View>
     </Screen>

@@ -28,7 +28,7 @@ const WEB_TO_EXPO: Record<string, string> = {
   upc_e: 'upc_e',
 };
 
-/** 1D d’abord — c’est le code caisse des cartes fidélité. */
+/** 1D first - that is the checkout code on loyalty cards. */
 const PREFERRED_FORMATS = [
   'code_128',
   'code_39',
@@ -61,13 +61,13 @@ function pickBestHit(results: Array<{ format: string; rawValue: string }>) {
 
 /**
  * Web scanner tuned for loyalty **barcodes** (Code128 / EAN…), not QR.
- * Crops a wide horizontal band — matches 1D barcode geometry.
+ * Crops a wide horizontal band - matches 1D barcode geometry.
  */
 export function ScanCameraPanel({
   active,
   locked,
   accentColor,
-  statusLabel = 'Aligne le code-barres dans la bande',
+  statusLabel = 'Align the barcode in the band',
   onBarcode,
 }: Props) {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -104,7 +104,7 @@ export function ScanCameraPanel({
         setError(null);
 
         if (!navigator.mediaDevices?.getUserMedia) {
-          setError('Caméra indisponible dans ce navigateur.');
+          setError('Camera unavailable in this browser.');
           return;
         }
 
@@ -125,7 +125,7 @@ export function ScanCameraPanel({
         streamRef.current = stream;
         const video = videoRef.current;
         if (!video) {
-          setError('Vidéo non montée.');
+          setError('Video not mounted.');
           return;
         }
 
@@ -148,7 +148,7 @@ export function ScanCameraPanel({
               v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
               v.videoWidth > 0
             ) {
-              // Wide horizontal crop (~28% height, centered) — ideal for 1D barcodes.
+              // Wide horizontal crop (~28% height, centered) - ideal for 1D barcodes.
               const bandH = Math.floor(v.videoHeight * 0.28);
               const bandY = Math.floor((v.videoHeight - bandH) / 2);
               const scale = 1.6;
@@ -212,7 +212,7 @@ export function ScanCameraPanel({
         setError(
           err instanceof Error
             ? err.message
-            : 'Impossible d’ouvrir la caméra.',
+            : 'Could not open the camera.',
         );
       }
     }
@@ -270,10 +270,10 @@ export function ScanCameraPanel({
           {error
             ? error
             : locked
-              ? 'Code capturé…'
+              ? 'Code captured…'
               : ready
                 ? `${statusLabel}${frames > 0 ? ` · ${frames}` : ''}`
-                : 'Ouverture de la caméra…'}
+                : 'Opening camera…'}
         </Text>
       </View>
     </View>

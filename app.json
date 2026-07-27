@@ -11,7 +11,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.romainboiret.fidelio",
       "infoPlist": {
-        "NSCameraUsageDescription": "Fidelio utilise la caméra pour scanner les codes de tes cartes de fidélité."
+        "NSCameraUsageDescription": "Fidelio uses the camera to scan your loyalty card codes."
       }
     },
     "android": {
@@ -36,7 +36,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Fidelio utilise la caméra pour scanner les codes de tes cartes de fidélité.",
+          "cameraPermission": "Fidelio uses the camera to scan your loyalty card codes.",
           "recordAudioAndroid": false,
           "barcodeScannerEnabled": true
         }

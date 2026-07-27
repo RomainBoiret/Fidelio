@@ -23,15 +23,15 @@ export default function NewCardScreen() {
 
   async function onSave() {
     if (!codeValue.trim()) {
-      Alert.alert('Code manquant', 'Ajoute au moins le code de la carte.');
+      Alert.alert('Missing code', 'Add at least the card code.');
       return;
     }
 
     setSaving(true);
     try {
       const card = await addCard({
-        title: title.trim() || storeName.trim() || 'Ma carte',
-        storeName: storeName.trim() || 'Magasin',
+        title: title.trim() || storeName.trim() || 'My card',
+        storeName: storeName.trim() || 'Store',
         codeValue: codeValue.trim(),
         notes: notes.trim() || null,
         codeFormat: 'unknown',
@@ -39,8 +39,8 @@ export default function NewCardScreen() {
       router.replace(`/card/${card.id}`);
     } catch (err) {
       Alert.alert(
-        'Erreur',
-        err instanceof Error ? err.message : 'Impossible d’enregistrer la carte.',
+        'Error',
+        err instanceof Error ? err.message : 'Could not save the card.',
       );
     } finally {
       setSaving(false);
@@ -50,9 +50,9 @@ export default function NewCardScreen() {
   return (
     <Screen scroll padded={false} edges={['left', 'right']}>
       <CurveHero
-        eyebrow="Nouvelle carte"
-        title="Ajout manuel"
-        subtitle="Utile quand le scan n’est pas pratique, ou pour coller un code."
+        eyebrow="New card"
+        title="Manual entry"
+        subtitle="Handy when scanning is awkward, or when you want to paste a code."
         height={240}
         right={<IconButton name="close" tone="secondary" onPress={() => router.back()} />}
       />
@@ -60,14 +60,14 @@ export default function NewCardScreen() {
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
         <View style={styles.form}>
           <TextField
-            label="Nom"
-            placeholder="Carte fidélité"
+            label="Name"
+            placeholder="Loyalty card"
             value={title}
             onChangeText={setTitle}
           />
           <TextField
-            label="Magasin"
-            placeholder="Auchan, Starbucks…"
+            label="Store"
+            placeholder="Walmart, Starbucks…"
             value={storeName}
             onChangeText={setStoreName}
           />
@@ -81,7 +81,7 @@ export default function NewCardScreen() {
           />
           <TextField
             label="Notes"
-            placeholder="Optionnel"
+            placeholder="Optional"
             value={notes}
             onChangeText={setNotes}
             multiline
@@ -91,11 +91,11 @@ export default function NewCardScreen() {
 
         <View style={styles.actions}>
           <Button
-            label={saving ? 'Enregistrement…' : 'Enregistrer'}
+            label={saving ? 'Saving…' : 'Save'}
             onPress={() => void onSave()}
             disabled={saving}
           />
-          <Button label="Annuler" variant="ghost" onPress={() => router.back()} />
+          <Button label="Cancel" variant="ghost" onPress={() => router.back()} />
         </View>
       </View>
     </Screen>

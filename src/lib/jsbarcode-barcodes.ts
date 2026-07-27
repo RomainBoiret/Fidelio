@@ -1,4 +1,4 @@
-// Deep CJS entry — Metro resolves this more reliably than `jsbarcode/js/barcodes`.
+// Deep CJS entry - Metro resolves this more reliably than `jsbarcode/js/barcodes`.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const mod = require('jsbarcode/bin/barcodes') as {
   default?: Record<string, unknown>;

@@ -20,13 +20,13 @@ type Props = {
 
 /**
  * Native camera preview scanner.
- * Keep `onBarcodeScanned` always attached — toggling it off breaks detection.
+ * Keep `onBarcodeScanned` always attached - toggling it off breaks detection.
  */
 export function ScanCameraPanel({
   active,
   locked,
   accentColor,
-  statusLabel = 'Aligne le code-barres dans la bande',
+  statusLabel = 'Align the barcode in the band',
   onBarcode,
 }: Props) {
   const [torch, setTorch] = React.useState(false);
@@ -59,7 +59,7 @@ export function ScanCameraPanel({
   if (!active) {
     return (
       <View style={[styles.viewport, styles.idle]}>
-        <Text style={[styles.idleText, { fontFamily: Fonts.body }]}>Caméra en pause</Text>
+        <Text style={[styles.idleText, { fontFamily: Fonts.body }]}>Camera paused</Text>
       </View>
     );
   }
@@ -90,13 +90,13 @@ export function ScanCameraPanel({
 
       <View style={styles.overlayBottom} pointerEvents="box-none">
         <Text style={[styles.status, { fontFamily: Fonts.bodyMedium }]}>
-          {locked ? 'Code capturé…' : ready ? statusLabel : 'Ouverture de la caméra…'}
+          {locked ? 'Code captured…' : ready ? statusLabel : 'Opening camera…'}
         </Text>
 
         {Platform.OS !== 'web' ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={torch ? 'Éteindre la torche' : 'Allumer la torche'}
+            accessibilityLabel={torch ? 'Turn off torch' : 'Turn on torch'}
             onPress={() => setTorch((v) => !v)}
             style={[
               styles.torchBtn,

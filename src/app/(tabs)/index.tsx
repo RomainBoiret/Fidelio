@@ -20,9 +20,9 @@ import { useTheme } from '@/hooks/use-theme';
 
 function greetingForNow() {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Bonjour';
-  if (hour < 18) return 'Bon après-midi';
-  return 'Bonsoir';
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
 }
 
 export default function CardsScreen() {
@@ -34,8 +34,8 @@ export default function CardsScreen() {
     <Screen withTabInset padded={false} edges={['left', 'right']}>
       <CurveHero
         eyebrow={greetingForNow()}
-        title="Tes cartes, prêtes en caisse"
-        subtitle="Scan, range, retrouve — même hors ligne."
+        title="Your cards, ready at checkout"
+        subtitle="Scan, store, find - even offline."
         height={290}
         right={
           <IconButton
@@ -57,7 +57,7 @@ export default function CardsScreen() {
             <Text style={{ color: colors.danger, fontFamily: Fonts.body }}>{error}</Text>
             <Pressable onPress={() => void refresh()}>
               <Text style={{ color: colors.accentText, fontFamily: Fonts.bodyMedium }}>
-                Réessayer
+                Try again
               </Text>
             </Pressable>
           </View>
@@ -65,20 +65,20 @@ export default function CardsScreen() {
           <FadeIn delay={120}>
             <View style={styles.empty}>
               <Text style={[styles.emptyKicker, { color: colors.accentText, fontFamily: Fonts.bodyMedium }]}>
-                Coffre vide
+                Empty vault
               </Text>
               <Text style={[styles.emptyTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}>
-                Ajoute ta première carte
+                Add your first card
               </Text>
               <Text
                 style={[styles.emptyBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}
               >
-                Scanne un code en magasin, ou saisis-le à la main.
+                Scan a code in store, or enter it by hand.
               </Text>
               <View style={styles.emptyActions}>
                 <PressableScale onPress={() => router.push('/scan')}>
                   <View style={[styles.primaryCta, { backgroundColor: colors.accent }]}>
-                    <Text style={{ color: '#FFF', fontFamily: Fonts.bodyBold }}>Scanner</Text>
+                    <Text style={{ color: '#FFF', fontFamily: Fonts.bodyBold }}>Scan</Text>
                   </View>
                 </PressableScale>
                 <PressableScale onPress={() => router.push('/card/new')}>
@@ -89,7 +89,7 @@ export default function CardsScreen() {
                     ]}
                   >
                     <Text style={{ color: colors.text, fontFamily: Fonts.bodyMedium }}>
-                      Saisie manuelle
+                      Manual entry
                     </Text>
                   </View>
                 </PressableScale>
@@ -102,7 +102,7 @@ export default function CardsScreen() {
               <Text
                 style={[styles.sectionTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}
               >
-                {cards.length} carte{cards.length > 1 ? 's' : ''}
+                {cards.length} card{cards.length === 1 ? '' : 's'}
               </Text>
             </FadeIn>
             <FlatList

@@ -92,7 +92,7 @@ export function encodeLinearBarcode(
       });
 
       if (!encoder.valid()) {
-        lastError = new Error(`Format ${attempt} invalide pour cette valeur.`);
+        lastError = new Error(`Invalid ${attempt} format for this value.`);
         continue;
       }
 
@@ -112,5 +112,5 @@ export function encodeLinearBarcode(
     }
   }
 
-  throw lastError ?? new Error('Impossible de générer le code-barres.');
+  throw lastError ?? new Error('Could not generate the barcode.');
 }

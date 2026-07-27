@@ -12,16 +12,16 @@ import { useTheme } from '@/hooks/use-theme';
 
 const ITEMS = [
   {
-    title: 'Stockage local',
-    body: 'Tes cartes vivent déjà dans SQLite sur l’appareil.',
+    title: 'Local storage',
+    body: 'Your cards already live in SQLite on this device.',
   },
   {
-    title: 'Compte & sync',
-    body: 'Supabase Auth + pull/push arriveront au prochain jalon.',
+    title: 'Account & sync',
+    body: 'Supabase Auth + pull/push will land in a later milestone.',
   },
   {
-    title: 'Catégories',
-    body: 'Pour ranger courses, restos, sport… sans fouiller.',
+    title: 'Categories',
+    body: 'Organize groceries, restaurants, sports… without digging.',
   },
 ];
 
@@ -32,9 +32,9 @@ export default function SettingsScreen() {
   return (
     <Screen withTabInset scroll padded={false} edges={['left', 'right']}>
       <CurveHero
-        eyebrow="Réglages"
-        title="La suite arrive"
-        subtitle="Auth, sync cloud et catégories — pour l’instant tout reste local."
+        eyebrow="Settings"
+        title="More is coming"
+        subtitle="Auth, cloud sync and categories - for now everything stays local."
         height={250}
       />
 

@@ -83,7 +83,7 @@ function CardTileComponent({ card, index = 0 }: Props) {
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Montrer ${card.title} en caisse`}
+          accessibilityLabel={`Show ${card.title} at checkout`}
           onPress={onPresent}
           hitSlop={8}
           style={[styles.presentBtn, { backgroundColor: colors.accentSoft }]}

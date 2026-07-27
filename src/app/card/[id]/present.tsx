@@ -19,7 +19,7 @@ function paramId(value: string | string[] | undefined): string | undefined {
 const KEEP_AWAKE_TAG = 'fidelio-checkout';
 
 /**
- * Full-screen checkout mode — max contrast barcode for the cashier scanner.
+ * Full-screen checkout mode - max contrast barcode for the cashier scanner.
  */
 export default function CardPresentScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -48,7 +48,7 @@ export default function CardPresentScreen() {
         previous = await Brightness.getBrightnessAsync();
         await Brightness.setBrightnessAsync(1);
       } catch {
-        // permission denied — still usable
+        // permission denied - still usable
       }
     })();
 
@@ -64,9 +64,9 @@ export default function CardPresentScreen() {
   if (!card) {
     return (
       <View style={[styles.root, { paddingTop: insets.top + Spacing.lg }]}>
-        <Text style={styles.missing}>Carte introuvable</Text>
+        <Text style={styles.missing}>Card not found</Text>
         <Pressable onPress={() => router.back()} style={styles.closeHit}>
-          <Text style={styles.closeText}>Fermer</Text>
+          <Text style={styles.closeText}>Close</Text>
         </Pressable>
       </View>
     );
@@ -87,12 +87,12 @@ export default function CardPresentScreen() {
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Fermer"
+          accessibilityLabel="Close"
           onPress={() => router.back()}
           style={styles.closeHit}
           hitSlop={12}
         >
-          <Text style={styles.closeText}>Fermer</Text>
+          <Text style={styles.closeText}>Close</Text>
         </Pressable>
       </View>
 
@@ -101,7 +101,7 @@ export default function CardPresentScreen() {
       </View>
 
       <Text style={[styles.hint, { paddingBottom: insets.bottom + Spacing.lg }]}>
-        Oriente l’écran vers le lecteur · luminosité max
+        Point the screen at the reader · max brightness
       </Text>
     </View>
   );

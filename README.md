@@ -1,61 +1,69 @@
 # Fidelio
 
-App mobile pour scanner, ranger et retrouver tes cartes de fidélité — local-first, avec sync cloud prévue ensuite.
+Mobile app to scan, store, and find your loyalty cards - local-first, with cloud sync planned next.
 
 ## Stack
 
 - Expo + React Native + TypeScript
 - Expo Router (tabs + stack)
-- SQLite (`expo-sqlite`) comme source of truth locale
-- Caméra / scan barcode (`expo-camera`) — natif + web (BarcodeDetector)
-- Design bleu–mauve moderne, polices Outfit + DM Sans sur mobile
+- SQLite (`expo-sqlite`) as the local source of truth
+- Camera / barcode scan (`expo-camera`) - native + web (BarcodeDetector)
+- Modern blue-mauve design, Outfit + DM Sans fonts on mobile
 
-## Démarrer
+## Get started
 
 ```bash
 npm install
 npm start
 ```
 
-Ouvre sur un **appareil physique** ou un simulateur (Expo Go / dev client).  
-Le web sert de preview, pas de cible de perf.
+Open on a **physical device** or a simulator (Expo Go / dev client).  
+Web is for preview, not a performance target.
 
-## Perf mobile (cible réelle)
+## Mobile perf (real target)
 
-Lighthouse dans Chrome mesure le **bundle web Expo**, pas l’app téléphone.  
-Pour Fidelio, la perf qui compte se mesure ainsi :
+Lighthouse in Chrome measures the **Expo web bundle**, not the phone app.  
+For Fidelio, the perf that matters is measured like this:
 
 ```bash
-# Build de prod local
+# Local release build
 npx expo run:android --variant release
-# ou
+# or
 npx expo run:ios --configuration Release
 ```
 
-Puis vérifier sur appareil :
-- démarrage jusqu’à la liste de cartes fluide
-- scroll liste sans saccades
-- onglet Scan : caméra uniquement quand l’onglet est actif
-- app en arrière-plan : pas de caméra qui tourne
+Then check on device:
+- startup until the cards list feels smooth
+- list scroll without jank
+- Scan tab: camera only while the tab is active
+- app in background: camera not running
 
-Optimisations déjà en place :
-- init SQLite après le premier paint (`InteractionManager`)
-- tabs `lazy` + `freezeOnBlur`
-- caméra démontée hors focus
-- liste virtualisée (fenêtre / batch)
-- tuiles mémoïsées
-- React Compiler activé
-- deps web-only / inutilisées retirées du bundle
+Optimizations already in place:
+- SQLite init after first paint (`InteractionManager`)
+- lazy tabs + `freezeOnBlur`
+- camera unmounted off focus
+- virtualized list (window / batch)
+- memoized tiles
+- React Compiler enabled
+- unused / web-only deps removed from the bundle
 
 ## Architecture
 
 ```text
 src/
-  app/                 # écrans (Expo Router)
+  app/                 # screens (Expo Router)
   components/          # UI + tabs + scan
-  constants/           # thème
+  constants/           # theme
   data/
     local/             # SQLite repositories
-    store/             # context React
-  domain/              # types & règles métier
+    store/             # React context
+  domain/              # types & business rules
 ```
+
+## Roadmap
+
+1. ~~Local core + manual add~~
+2. ~~Camera scan (quick create)~~
+3. ~~Fullscreen barcode display~~
+4. Categories + search
+5. Auth + Supabase sync

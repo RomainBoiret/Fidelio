@@ -17,10 +17,10 @@ export default function RootLayout() {
   return (
     <CardsProvider>
       <Head>
-        <title>Fidelio — Cartes de fidélité</title>
+        <title>Fidelio - Loyalty cards</title>
         <meta
           name="description"
-          content="Fidelio range tes cartes de fidélité : scan, coffre local, accès rapide en caisse — même hors ligne."
+          content="Fidelio stores your loyalty cards: scan, local vault, quick checkout access - even offline."
         />
       </Head>
       <StatusBar style="light" />
@@ -36,16 +36,16 @@ export default function RootLayout() {
         <Stack.Screen
           name="card/new"
           options={{
-            title: 'Nouvelle carte',
+            title: 'New card',
             presentation: 'modal',
             animation: Platform.OS === 'web' ? 'none' : 'slide_from_bottom',
           }}
         />
-        <Stack.Screen name="card/[id]/index" options={{ title: 'Détail carte' }} />
+        <Stack.Screen name="card/[id]/index" options={{ title: 'Card details' }} />
         <Stack.Screen
           name="card/[id]/present"
           options={{
-            title: 'Code en caisse',
+            title: 'Checkout code',
             presentation: 'fullScreenModal',
             animation: Platform.OS === 'web' ? 'none' : 'fade',
           }}

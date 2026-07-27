@@ -2,11 +2,11 @@ import { ScrollViewStyleReset } from 'expo-router/html';
 import type { PropsWithChildren } from 'react';
 
 /**
- * Root HTML for Expo web — critical for Lighthouse SEO / a11y title checks.
+ * Root HTML for Expo web - critical for Lighthouse SEO / a11y title checks.
  */
 export default function Root({ children }: PropsWithChildren) {
   return (
-    <html lang="fr">
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -14,17 +14,17 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
-        <title>Fidelio — Cartes de fidélité</title>
+        <title>Fidelio - Loyalty cards</title>
         <meta
           name="description"
-          content="Fidelio range tes cartes de fidélité : scan, coffre local, accès rapide en caisse — même hors ligne."
+          content="Fidelio stores your loyalty cards: scan, local vault, quick checkout access - even offline."
         />
         <meta name="theme-color" content="#2A2560" />
         <meta name="application-name" content="Fidelio" />
-        <meta property="og:title" content="Fidelio — Cartes de fidélité" />
+        <meta property="og:title" content="Fidelio - Loyalty cards" />
         <meta
           property="og:description"
-          content="Scan, range et retrouve tes cartes de fidélité en un clin d’œil."
+          content="Scan, store, and find your loyalty cards in a flash."
         />
         <meta property="og:type" content="website" />
         <ScrollViewStyleReset />

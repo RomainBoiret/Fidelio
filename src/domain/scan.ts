@@ -3,8 +3,8 @@ import type { BarcodeType } from 'expo-camera';
 import type { BarcodeFormat } from '@/domain/types';
 
 /**
- * Formats cartes fidélité — code-barres 1D en priorité (le vrai identifiant caisse).
- * QR en dernier : souvent un lien / autre chose.
+ * Loyalty card formats - 1D barcodes first (the real checkout id).
+ * QR last: often a link / something else.
  */
 export const LOYALTY_BARCODE_TYPES: BarcodeType[] = [
   'code128',
@@ -52,15 +52,15 @@ export function labelsFromScan(data: string, type: string) {
     try {
       const url = new URL(data);
       return {
-        title: 'Carte scannée',
+        title: 'Scanned card',
         storeName: url.hostname.replace(/^www\./, '') || 'QR',
       };
     } catch {
-      return { title: 'Carte QR', storeName: 'Magasin scanné' };
+      return { title: 'QR card', storeName: 'Scanned store' };
     }
   }
   return {
-    title: 'Carte scannée',
-    storeName: 'Magasin scanné',
+    title: 'Scanned card',
+    storeName: 'Scanned store',
   };
 }

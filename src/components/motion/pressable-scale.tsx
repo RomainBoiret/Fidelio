@@ -19,7 +19,7 @@ type Props = {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-/** Subtle spring scale on press — feels soft, not bouncy-toy. */
+/** Subtle spring scale on press - feels soft, not bouncy-toy. */
 export function PressableScale({
   children,
   onPress,

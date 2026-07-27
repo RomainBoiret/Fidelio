@@ -61,7 +61,7 @@ export default function AppTabs() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Cartes',
+          title: 'Cards',
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
@@ -97,7 +97,7 @@ export default function AppTabs() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Réglages',
+          title: 'Settings',
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[

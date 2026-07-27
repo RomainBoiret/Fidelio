@@ -36,7 +36,7 @@ export function LoyaltyBarcode({
 
   if (!value.trim()) {
     return (
-      <Text style={styles.error}>Aucun code à afficher.</Text>
+      <Text style={styles.error}>No code to display.</Text>
     );
   }
 
@@ -95,7 +95,7 @@ export function LoyaltyBarcode({
     return (
       <View style={styles.wrap}>
         <Text style={styles.error}>
-          {err instanceof Error ? err.message : 'Code-barres invalide.'}
+          {err instanceof Error ? err.message : 'Invalid barcode.'}
         </Text>
         <Text style={styles.value} selectable>
           {value.trim()}
