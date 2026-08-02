@@ -1,10 +1,13 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
+import * as React from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 
@@ -15,6 +18,7 @@ import { CurveHero } from '@/components/ui/curve-hero';
 import { IconButton } from '@/components/ui/icon-button';
 import { Screen } from '@/components/ui/screen';
 import { useCards } from '@/data/store/cards-context';
+import { filterCards } from '@/domain/filter-cards';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -29,6 +33,10 @@ export default function CardsScreen() {
   const colors = useTheme();
   const router = useRouter();
   const { cards, loading, error, refresh } = useCards();
+  const [query, setQuery] = React.useState('');
+
+  const filtered = filterCards(cards, query);
+  const hasQuery = query.trim().length > 0;
 
   return (
     <Screen withTabInset padded={false} edges={['left', 'right']}>
@@ -98,27 +106,98 @@ export default function CardsScreen() {
           </FadeIn>
         ) : (
           <>
+            <FadeIn delay={40}>
+              <View
+                style={[
+                  styles.search,
+                  {
+                    backgroundColor: colors.backgroundElevated,
+                    borderColor: colors.border,
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name="magnify"
+                  size={20}
+                  color={colors.textMuted}
+                />
+                <TextInput
+                  value={query}
+                  onChangeText={setQuery}
+                  placeholder="Search name, store, or code"
+                  placeholderTextColor={colors.textMuted}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  clearButtonMode="while-editing"
+                  style={[
+                    styles.searchInput,
+                    { color: colors.text, fontFamily: Fonts.body },
+                  ]}
+                  accessibilityLabel="Search cards"
+                />
+                {hasQuery ? (
+                  <Pressable
+                    onPress={() => setQuery('')}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel="Clear search"
+                  >
+                    <MaterialCommunityIcons
+                      name="close-circle"
+                      size={18}
+                      color={colors.textMuted}
+                    />
+                  </Pressable>
+                ) : null}
+              </View>
+            </FadeIn>
+
             <FadeIn delay={80}>
               <Text
                 style={[styles.sectionTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}
               >
-                {cards.length} card{cards.length === 1 ? '' : 's'}
+                {hasQuery
+                  ? `${filtered.length} result${filtered.length === 1 ? '' : 's'}`
+                  : `${cards.length} card${cards.length === 1 ? '' : 's'}`}
               </Text>
             </FadeIn>
-            <FlatList
-              data={cards}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.list}
-              ItemSeparatorComponent={() => <View style={{ height: Spacing.md }} />}
-              renderItem={({ item, index }) => <CardTile card={item} index={index} />}
-              onRefresh={() => void refresh()}
-              refreshing={loading}
-              showsVerticalScrollIndicator={false}
-              initialNumToRender={8}
-              maxToRenderPerBatch={8}
-              windowSize={7}
-              removeClippedSubviews
-            />
+
+            {filtered.length === 0 ? (
+              <View style={styles.noResults}>
+                <Text
+                  style={[
+                    styles.noResultsTitle,
+                    { color: colors.text, fontFamily: Fonts.display },
+                  ]}
+                >
+                  No matches
+                </Text>
+                <Text
+                  style={[
+                    styles.noResultsBody,
+                    { color: colors.textSecondary, fontFamily: Fonts.body },
+                  ]}
+                >
+                  Try another name, store, or code fragment.
+                </Text>
+              </View>
+            ) : (
+              <FlatList
+                data={filtered}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.list}
+                ItemSeparatorComponent={() => <View style={{ height: Spacing.md }} />}
+                renderItem={({ item, index }) => <CardTile card={item} index={index} />}
+                onRefresh={() => void refresh()}
+                refreshing={loading}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                initialNumToRender={8}
+                maxToRenderPerBatch={8}
+                windowSize={7}
+                removeClippedSubviews
+              />
+            )}
           </>
         )}
       </View>
@@ -132,6 +211,21 @@ const styles = StyleSheet.create({
     marginTop: -6,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.sm,
+  },
+  search: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    minHeight: 48,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    paddingVertical: 10,
   },
   sectionTitle: {
     fontSize: 20,
@@ -179,6 +273,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingVertical: 14,
     borderWidth: 1,
+  },
+  noResults: {
+    paddingTop: Spacing.md,
+    gap: Spacing.sm,
+  },
+  noResultsTitle: {
+    fontSize: 18,
+    letterSpacing: -0.2,
+  },
+  noResultsBody: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   list: {
     paddingBottom: 140,
