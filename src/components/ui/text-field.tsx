@@ -55,9 +55,9 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   input: {
-    minHeight: 56,
+    minHeight: 54,
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     paddingHorizontal: Spacing.lg,
     fontSize: 16,
   },

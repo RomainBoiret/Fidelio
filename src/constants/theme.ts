@@ -1,55 +1,68 @@
 import { Platform } from 'react-native';
 
 /**
- * Modern blue–mauve wallet.
- * Cool mist surfaces, deep indigo heroes, soft mauve accents.
+ * Soft productivity aesthetic.
+ * Electric blue accents, white cards, breezy grey canvas.
  */
 export const Colors = {
   light: {
-    text: '#14122A',
-    textSecondary: '#5C5878',
-    textMuted: '#8A86A4',
-    background: '#F3F2F8',
+    text: '#1C1F2A',
+    textSecondary: '#6B7285',
+    textMuted: '#9AA1B2',
+    background: '#F3F5FA',
     backgroundElevated: '#FFFFFF',
-    surface: '#EAE8F3',
-    surfaceStrong: '#DDDAEA',
-    border: 'rgba(40, 36, 80, 0.08)',
-    borderStrong: 'rgba(40, 36, 80, 0.14)',
-    accent: '#5B6CFF',
-    accentDeep: '#2A2560',
-    accentSoft: 'rgba(91, 108, 255, 0.12)',
-    accentText: '#3F48C7',
-    accentSecondary: '#9B7CFF',
-    success: '#2FAE7A',
-    danger: '#E25555',
-    shadow: 'rgba(42, 37, 96, 0.12)',
+    surface: '#EAEFF8',
+    surfaceStrong: '#DDE5F4',
+    border: 'rgba(28, 31, 42, 0.06)',
+    borderStrong: 'rgba(28, 31, 42, 0.12)',
+    accent: '#3B6BFF',
+    accentDeep: '#2F5AE6',
+    accentSoft: 'rgba(59, 107, 255, 0.12)',
+    accentText: '#3B6BFF',
+    accentSecondary: '#7B8CFF',
+    cream: '#FFFFFF',
+    ink: '#1C1F2A',
+    onHero: '#1C1F2A',
+    success: '#3DBE8B',
+    danger: '#FF5C6C',
+    shadow: 'rgba(40, 55, 120, 0.1)',
+    pastelPink: '#FFE4E8',
+    pastelPurple: '#EDE7FF',
+    pastelGreen: '#E3F8EF',
+    pastelBlue: '#E5EDFF',
   },
   dark: {
-    text: '#F4F3FA',
-    textSecondary: '#B4B0CC',
-    textMuted: '#8581A0',
-    background: '#0E0C1A',
-    backgroundElevated: '#17142A',
-    surface: '#1F1B36',
-    surfaceStrong: '#2A2544',
-    border: 'rgba(244, 243, 250, 0.08)',
-    borderStrong: 'rgba(244, 243, 250, 0.14)',
-    accent: '#8B9BFF',
-    accentDeep: '#12102A',
-    accentSoft: 'rgba(139, 155, 255, 0.16)',
-    accentText: '#B8C0FF',
-    accentSecondary: '#B79CFF',
+    text: '#F4F6FB',
+    textSecondary: '#B4B9C9',
+    textMuted: '#858B9C',
+    background: '#11141C',
+    backgroundElevated: '#1A1F2B',
+    surface: '#242A38',
+    surfaceStrong: '#2E3546',
+    border: 'rgba(244, 246, 251, 0.08)',
+    borderStrong: 'rgba(244, 246, 251, 0.14)',
+    accent: '#6B8CFF',
+    accentDeep: '#3B6BFF',
+    accentSoft: 'rgba(107, 140, 255, 0.18)',
+    accentText: '#9BB0FF',
+    accentSecondary: '#8FA0FF',
+    cream: '#FFFFFF',
+    ink: '#F4F6FB',
+    onHero: '#F4F6FB',
     success: '#4ADE9B',
-    danger: '#FF7B7B',
-    shadow: 'rgba(0, 0, 0, 0.45)',
+    danger: '#FF7B8A',
+    shadow: 'rgba(0, 0, 0, 0.4)',
+    pastelPink: '#3A2430',
+    pastelPurple: '#2C2640',
+    pastelGreen: '#1F332C',
+    pastelBlue: '#1F2A40',
   },
 } as const;
 
 export type ThemeColors = (typeof Colors)[keyof typeof Colors];
 export type ThemeColor = keyof ThemeColors;
 
-const webFont =
-  'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const webFont = '"Plus Jakarta Sans", system-ui, sans-serif';
 
 export const Fonts = Platform.select({
   web: {
@@ -60,11 +73,11 @@ export const Fonts = Platform.select({
     bodyBold: webFont,
   },
   default: {
-    display: 'Outfit_600SemiBold',
-    displayBold: 'Outfit_700Bold',
-    body: 'DMSans_400Regular',
-    bodyMedium: 'DMSans_500Medium',
-    bodyBold: 'DMSans_700Bold',
+    display: 'PlusJakartaSans_600SemiBold',
+    displayBold: 'PlusJakartaSans_700Bold',
+    body: 'PlusJakartaSans_400Regular',
+    bodyMedium: 'PlusJakartaSans_500Medium',
+    bodyBold: 'PlusJakartaSans_700Bold',
   },
 })!;
 
@@ -82,22 +95,22 @@ export const Radius = {
   sm: 14,
   md: 20,
   lg: 26,
-  xl: 34,
+  xl: 32,
   full: 999,
 } as const;
 
 export const Shadow = {
   card: {
-    shadowColor: '#2A2560',
+    shadowColor: '#283778',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 22,
-    elevation: 4,
+    shadowOpacity: 0.07,
+    shadowRadius: 24,
+    elevation: 3,
   },
   floating: {
-    shadowColor: '#2A2560',
+    shadowColor: '#283778',
     shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.16,
+    shadowOpacity: 0.12,
     shadowRadius: 28,
     elevation: 10,
   },

@@ -1,5 +1,6 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import * as React from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   Easing,
@@ -7,27 +8,32 @@ import Animated, {
   useReducedMotion,
 } from 'react-native-reanimated';
 
-import { WaveEdge } from '@/components/ui/wave-edge';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
   brand?: string;
   eyebrow?: string;
   title: string;
+  /** Optional fragment highlighted in a blue pill inside the title row. */
+  highlight?: string;
   subtitle?: string;
   right?: React.ReactNode;
   height?: number;
   children?: React.ReactNode;
 };
 
+/**
+ * Light, airy header — productivity-app style (no dark hero block).
+ */
 export function CurveHero({
   brand = 'Fidelio',
   eyebrow,
   title,
+  highlight,
   subtitle,
   right,
-  height = 300,
+  height = 200,
   children,
 }: Props) {
   const colors = useTheme();
@@ -35,18 +41,17 @@ export function CurveHero({
   const reduceMotion = useReducedMotion();
 
   return (
-    <View style={[styles.wrap, { backgroundColor: colors.accentDeep }]}>
+    <View style={[styles.wrap, { backgroundColor: colors.background }]}>
       <View style={styles.atmosphere} pointerEvents="none">
-        <View style={[styles.glowA, { backgroundColor: colors.accent }]} />
-        <View style={[styles.glowB, { backgroundColor: colors.accentSecondary }]} />
-        <View style={[styles.glowC, { backgroundColor: '#7A8BFF' }]} />
+        <View style={[styles.blobA, { backgroundColor: colors.accent }]} />
+        <View style={[styles.blobB, { backgroundColor: colors.accentSecondary }]} />
       </View>
 
       <Animated.View
         entering={
           reduceMotion
             ? undefined
-            : FadeInDown.duration(700).easing(Easing.out(Easing.cubic))
+            : FadeInDown.duration(560).easing(Easing.out(Easing.cubic))
         }
         style={[
           styles.hero,
@@ -57,22 +62,44 @@ export function CurveHero({
         ]}
       >
         <View style={styles.topRow}>
-          <Text style={[styles.brand, { fontFamily: Fonts.displayBold }]}>{brand}</Text>
+          <View style={styles.brandRow}>
+            <View style={[styles.logo, { backgroundColor: colors.accent }]}>
+              <MaterialCommunityIcons name="wallet-outline" size={18} color="#FFFFFF" />
+            </View>
+            <Text style={[styles.brand, { color: colors.text, fontFamily: Fonts.displayBold }]}>
+              {brand}
+            </Text>
+          </View>
           {right}
         </View>
 
         <View style={styles.copy}>
           {eyebrow ? (
-            <Text style={[styles.eyebrow, { fontFamily: Fonts.bodyMedium }]}>{eyebrow}</Text>
+            <Text style={[styles.eyebrow, { color: colors.textSecondary, fontFamily: Fonts.bodyMedium }]}>
+              {eyebrow}
+            </Text>
           ) : null}
-          <Text style={[styles.title, { fontFamily: Fonts.displayBold }]}>{title}</Text>
+
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { color: colors.text, fontFamily: Fonts.displayBold }]}>
+              {title}
+              {highlight ? ' ' : ''}
+            </Text>
+            {highlight ? (
+              <View style={[styles.pill, { backgroundColor: colors.accent }]}>
+                <Text style={[styles.pillText, { fontFamily: Fonts.bodyBold }]}>{highlight}</Text>
+              </View>
+            ) : null}
+          </View>
+
           {subtitle ? (
-            <Text style={[styles.subtitle, { fontFamily: Fonts.body }]}>{subtitle}</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
+              {subtitle}
+            </Text>
           ) : null}
           {children}
         </View>
       </Animated.View>
-      <WaveEdge fill={colors.background} />
     </View>
   );
 }
@@ -84,39 +111,27 @@ const styles = StyleSheet.create({
   atmosphere: {
     ...StyleSheet.absoluteFill,
   },
-  glowA: {
-    position: 'absolute',
-    width: 280,
-    height: 280,
-    borderRadius: 999,
-    top: -90,
-    right: -70,
-    opacity: 0.42,
-    ...(Platform.OS === 'web' ? ({ filter: 'blur(48px)' } as object) : null),
-  },
-  glowB: {
+  blobA: {
     position: 'absolute',
     width: 220,
     height: 220,
-    borderRadius: 999,
-    bottom: 20,
-    left: -80,
-    opacity: 0.28,
-    ...(Platform.OS === 'web' ? ({ filter: 'blur(40px)' } as object) : null),
+    borderRadius: 110,
+    top: -90,
+    right: -70,
+    opacity: 0.1,
   },
-  glowC: {
+  blobB: {
     position: 'absolute',
     width: 140,
     height: 140,
-    borderRadius: 999,
-    top: 90,
-    left: 80,
-    opacity: 0.18,
-    ...(Platform.OS === 'web' ? ({ filter: 'blur(28px)' } as object) : null),
+    borderRadius: 70,
+    top: 40,
+    left: -50,
+    opacity: 0.08,
   },
   hero: {
     paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.lg,
+    paddingBottom: Spacing.md,
     justifyContent: 'space-between',
     zIndex: 1,
   },
@@ -126,31 +141,51 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: Spacing.xl,
   },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  logo: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   brand: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    letterSpacing: -0.8,
+    fontSize: 18,
+    letterSpacing: -0.3,
   },
   copy: {
     gap: Spacing.sm,
-    paddingBottom: Spacing.sm,
   },
   eyebrow: {
-    color: 'rgba(255,255,255,0.64)',
-    fontSize: 13,
-    letterSpacing: 0.5,
+    fontSize: 14,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 8,
   },
   title: {
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.6,
+  },
+  pill: {
+    borderRadius: Radius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  pillText: {
     color: '#FFFFFF',
-    fontSize: 32,
-    lineHeight: 36,
-    letterSpacing: -0.9,
-    maxWidth: 300,
+    fontSize: 15,
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.74)',
     fontSize: 15,
     lineHeight: 22,
-    maxWidth: 280,
+    maxWidth: 300,
   },
 });

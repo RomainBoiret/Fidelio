@@ -19,7 +19,6 @@ export function SoftCard({ children, style, padded = true, ...rest }: Props) {
         Shadow.card,
         {
           backgroundColor: colors.backgroundElevated,
-          borderColor: colors.border,
           shadowColor: colors.shadow,
         },
         padded && styles.padded,
@@ -34,8 +33,7 @@ export function SoftCard({ children, style, padded = true, ...rest }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: Radius.xl,
   },
   padded: {
     padding: Spacing.lg,

@@ -43,11 +43,11 @@ export function IconButton({
     tone === 'accent'
       ? colors.accent
       : tone === 'secondary'
-        ? 'rgba(255,255,255,0.22)'
+        ? colors.surface
         : colors.backgroundElevated;
 
   const iconColor =
-    tone === 'accent' || tone === 'secondary' ? '#FFFFFF' : colors.text;
+    tone === 'accent' ? '#FFFFFF' : colors.text;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -73,7 +73,7 @@ export function IconButton({
         Shadow.card,
         {
           backgroundColor: background,
-          borderColor: tone === 'secondary' ? 'transparent' : colors.border,
+          borderColor: colors.border,
           shadowColor: colors.shadow,
         },
         animatedStyle,
@@ -88,8 +88,8 @@ export function IconButton({
 
 const styles = StyleSheet.create({
   btn: {
-    width: 48,
-    height: 48,
+    width: 46,
+    height: 46,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',

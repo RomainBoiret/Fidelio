@@ -15,6 +15,7 @@ import { useTheme } from '@/hooks/use-theme';
 type InfoItem = {
   title: string;
   body: string;
+  tone: 'pastelBlue' | 'pastelPurple' | 'pastelGreen';
 };
 
 function appVersion() {
@@ -25,12 +26,6 @@ function appVersion() {
   );
 }
 
-function storageLabel() {
-  return Platform.OS === 'web'
-    ? 'Browser localStorage on this device'
-    : 'SQLite vault on this device';
-}
-
 export default function SettingsScreen() {
   const colors = useTheme();
   const reduceMotion = useReducedMotion();
@@ -38,32 +33,31 @@ export default function SettingsScreen() {
 
   const items: InfoItem[] = [
     {
-      title: 'Vault',
+      title: 'Local vault',
       body: loading
-        ? 'Loading your cards…'
-        : `${cards.length} card${cards.length === 1 ? '' : 's'} · ${storageLabel()}`,
+        ? 'Loading…'
+        : `${cards.length} card${cards.length === 1 ? '' : 's'} stored on this device.`,
+      tone: 'pastelBlue',
     },
     {
-      title: 'App version',
+      title: 'Version',
       body: `Fidelio ${appVersion()} · ${Platform.OS}`,
+      tone: 'pastelPurple',
     },
     {
-      title: 'Account & sync',
-      body: 'Supabase Auth + pull/push will land in a later milestone.',
-    },
-    {
-      title: 'Categories',
-      body: 'Organize groceries, restaurants, sports… without digging.',
+      title: 'Coming next',
+      body: 'Categories, smarter search, and cloud sync.',
+      tone: 'pastelGreen',
     },
   ];
 
   return (
     <Screen withTabInset scroll padded={false} edges={['left', 'right']}>
       <CurveHero
-        eyebrow="Settings"
+        eyebrow="Profile"
         title="Your vault"
-        subtitle="Local-first today. Sync and categories are next."
-        height={250}
+        subtitle="Everything stays local for now."
+        height={180}
       />
 
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
@@ -73,8 +67,8 @@ export default function SettingsScreen() {
             entering={
               reduceMotion
                 ? undefined
-                : FadeInUp.delay(80 + index * 70)
-                    .duration(460)
+                : FadeInUp.delay(60 + index * 60)
+                    .duration(420)
                     .easing(Easing.out(Easing.cubic))
             }
           >
@@ -83,23 +77,19 @@ export default function SettingsScreen() {
                 styles.card,
                 Shadow.card,
                 {
-                  backgroundColor: colors.backgroundElevated,
-                  borderColor: colors.border,
+                  backgroundColor: colors[item.tone],
                   shadowColor: colors.shadow,
                 },
               ]}
             >
-              <View style={[styles.dot, { backgroundColor: colors.accent }]} />
-              <View style={styles.copy}>
-                <Text style={[styles.cardTitle, { color: colors.text, fontFamily: Fonts.display }]}>
-                  {item.title}
-                </Text>
-                <Text
-                  style={[styles.cardBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}
-                >
-                  {item.body}
-                </Text>
-              </View>
+              <Text style={[styles.cardTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}>
+                {item.title}
+              </Text>
+              <Text
+                style={[styles.cardBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}
+              >
+                {item.body}
+              </Text>
             </View>
           </Animated.View>
         ))}
@@ -110,31 +100,18 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   sheet: {
-    marginTop: -6,
     paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
     paddingBottom: 140,
   },
   card: {
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
-    flexDirection: 'row',
-    gap: Spacing.md,
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: Radius.full,
-    marginTop: 7,
-  },
-  copy: {
-    flex: 1,
     gap: 4,
   },
   cardTitle: {
-    fontSize: 17,
+    fontSize: 16,
     letterSpacing: -0.2,
   },
   cardBody: {

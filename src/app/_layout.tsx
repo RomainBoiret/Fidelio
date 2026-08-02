@@ -23,7 +23,7 @@ export default function RootLayout() {
           content="Fidelio stores your loyalty cards: scan, local vault, quick checkout access - even offline."
         />
       </Head>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
           headerShown: false,

@@ -7,16 +7,16 @@ type Props = {
   flip?: boolean;
 };
 
-/** Soft scoop between hero and content sheet. */
-export function WaveEdge({ fill, height = 36, flip = false }: Props) {
+/** Soft transition between hero and content. */
+export function WaveEdge({ fill, height = 28, flip = false }: Props) {
   return (
     <View
       style={[styles.wrap, { height }, flip && styles.flip]}
       pointerEvents="none"
     >
-      <Svg width="100%" height={height} viewBox="0 0 390 36" preserveAspectRatio="none">
+      <Svg width="100%" height={height} viewBox="0 0 390 28" preserveAspectRatio="none">
         <Path
-          d="M0 10 C95 34 150 0 220 12 C290 24 340 34 390 8 L390 36 L0 36 Z"
+          d="M0 10 C100 28 160 2 230 12 C300 22 350 26 390 8 L390 28 L0 28 Z"
           fill={fill}
         />
       </Svg>

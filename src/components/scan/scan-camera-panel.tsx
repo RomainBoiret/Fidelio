@@ -8,7 +8,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { LOYALTY_BARCODE_TYPES } from '@/domain/scan';
-import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 
 type Props = {
   active: boolean;
@@ -106,7 +106,7 @@ export function ScanCameraPanel({
             <MaterialCommunityIcons
               name={torch ? 'flashlight' : 'flashlight-off'}
               size={22}
-              color="#FFF"
+              color="#FFFFFF"
             />
           </Pressable>
         ) : null}
@@ -118,9 +118,9 @@ export function ScanCameraPanel({
 const styles = StyleSheet.create({
   viewport: {
     height: 460,
-    backgroundColor: '#0E0C1A',
+    backgroundColor: '#081516',
     overflow: 'hidden',
-    borderRadius: Radius.xl,
+    borderRadius: 20,
   },
   camera: {
     ...StyleSheet.absoluteFill,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '36%',
-    backgroundColor: 'rgba(14, 12, 26, 0.4)',
+    backgroundColor: 'rgba(8, 21, 22, 0.45)',
   },
   dimBottom: {
     position: 'absolute',
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '28%',
-    backgroundColor: 'rgba(14, 12, 26, 0.4)',
+    backgroundColor: 'rgba(8, 21, 22, 0.45)',
   },
   band: {
     position: 'absolute',
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Spacing.md,
-    backgroundColor: 'rgba(14, 12, 26, 0.45)',
+    backgroundColor: 'rgba(8, 21, 22, 0.5)',
   },
   status: {
     flex: 1,
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   torchBtn: {
     width: 44,
     height: 44,
-    borderRadius: Radius.full,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

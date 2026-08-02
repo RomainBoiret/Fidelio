@@ -1,19 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  Easing,
-  FadeInUp,
-  useReducedMotion,
-} from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ui/button';
+import { CurveHero } from '@/components/ui/curve-hero';
 import { IconButton } from '@/components/ui/icon-button';
 import { Screen } from '@/components/ui/screen';
 import { SoftCard } from '@/components/ui/soft-card';
 import { TextField } from '@/components/ui/text-field';
-import { WaveEdge } from '@/components/ui/wave-edge';
 import { useCards } from '@/data/store/cards-context';
 import { formatBarcodeLabel } from '@/domain/card';
 import { Fonts, Spacing } from '@/constants/theme';
@@ -37,8 +31,6 @@ export default function CardDetailScreen() {
   const id = paramId(params.id);
   const colors = useTheme();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const reduceMotion = useReducedMotion();
   const { getCardById, editCard, removeCard } = useCards();
   const card = id ? getCardById(id) : undefined;
 
@@ -85,8 +77,6 @@ export default function CardDetailScreen() {
       setStoreName(updated.storeName);
       setNotes(updated.notes ?? '');
       setSavedFlash(true);
-
-      // Always land on the cards list (not Scan via history back).
       router.replace('/');
     } catch (err) {
       const message =
@@ -143,43 +133,13 @@ export default function CardDetailScreen() {
 
   return (
     <Screen scroll padded={false} edges={['left', 'right']}>
-      <View style={{ backgroundColor: colors.accentDeep }}>
-        <View
-          style={[
-            styles.hero,
-            {
-              backgroundColor: colors.accentDeep,
-              paddingTop: insets.top + Spacing.md,
-            },
-          ]}
-        >
-          <View style={[styles.glow, { backgroundColor: card.accentColor ?? colors.accent }]} />
-          <View style={styles.topBar}>
-            <IconButton name="arrow-left" tone="secondary" onPress={() => router.back()} />
-            <View style={{ width: 48 }} />
-          </View>
-
-          <Animated.View
-            entering={
-              reduceMotion
-                ? undefined
-                : FadeInUp.duration(560).easing(Easing.out(Easing.cubic))
-            }
-            style={styles.heroCopy}
-          >
-            <Text style={[styles.heroEyebrow, { fontFamily: Fonts.bodyMedium }]}>
-              {formatBarcodeLabel(card.codeFormat)}
-            </Text>
-            <Text style={[styles.heroTitle, { fontFamily: Fonts.displayBold }]}>
-              {title || card.title}
-            </Text>
-            <Text style={[styles.heroStore, { fontFamily: Fonts.body }]}>
-              {storeName || card.storeName}
-            </Text>
-          </Animated.View>
-        </View>
-        <WaveEdge fill={colors.background} />
-      </View>
+      <CurveHero
+        eyebrow={formatBarcodeLabel(card.codeFormat)}
+        title={title || card.title}
+        subtitle={storeName || card.storeName}
+        height={180}
+        right={<IconButton name="close" tone="secondary" onPress={() => router.back()} />}
+      />
 
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
         <SoftCard style={styles.codePanel}>
@@ -219,9 +179,7 @@ export default function CardDetailScreen() {
 
         <View style={styles.actions}>
           <Button
-            label={
-              saving ? 'Saving…' : savedFlash ? 'Saved ✓' : 'Save'
-            }
+            label={saving ? 'Saving…' : savedFlash ? 'Saved ✓' : 'Save'}
             onPress={() => {
               void onSave();
             }}
@@ -235,47 +193,7 @@ export default function CardDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.xl,
-    gap: Spacing.xl,
-    overflow: 'hidden',
-  },
-  glow: {
-    position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 999,
-    top: -60,
-    right: -50,
-    opacity: 0.35,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  heroCopy: {
-    gap: 6,
-  },
-  heroEyebrow: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 12,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  heroTitle: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    letterSpacing: -0.8,
-    lineHeight: 36,
-  },
-  heroStore: {
-    color: 'rgba(255,255,255,0.78)',
-    fontSize: 16,
-  },
   sheet: {
-    marginTop: -6,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.xxxl,
     gap: Spacing.xl,
@@ -285,18 +203,17 @@ const styles = StyleSheet.create({
   },
   codeLabel: {
     fontSize: 12,
-    letterSpacing: 0.6,
+    letterSpacing: 0.4,
     textTransform: 'uppercase',
   },
   codeValue: {
-    fontSize: 28,
-    letterSpacing: 1,
+    fontSize: 26,
+    letterSpacing: 0.8,
   },
   form: {
     gap: Spacing.lg,
   },
   actions: {
     gap: Spacing.md,
-    zIndex: 2,
   },
 });

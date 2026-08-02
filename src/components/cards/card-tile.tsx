@@ -19,10 +19,14 @@ type Props = {
   index?: number;
 };
 
+const PASTELS = ['pastelPink', 'pastelPurple', 'pastelGreen', 'pastelBlue'] as const;
+
 function CardTileComponent({ card, index = 0 }: Props) {
   const colors = useTheme();
   const router = useRouter();
   const reduceMotion = useReducedMotion();
+  const pastelKey = PASTELS[index % PASTELS.length]!;
+  const pastelBg = colors[pastelKey];
   const accent = card.accentColor ?? colors.accent;
 
   const onOpen = React.useCallback(() => {
@@ -38,8 +42,8 @@ function CardTileComponent({ card, index = 0 }: Props) {
       entering={
         reduceMotion
           ? undefined
-          : FadeInUp.delay(Math.min(index, 6) * 60)
-              .duration(480)
+          : FadeInUp.delay(Math.min(index, 6) * 50)
+              .duration(420)
               .easing(Easing.out(Easing.cubic))
       }
     >
@@ -49,7 +53,6 @@ function CardTileComponent({ card, index = 0 }: Props) {
           Shadow.card,
           {
             backgroundColor: colors.backgroundElevated,
-            borderColor: colors.border,
             shadowColor: colors.shadow,
           },
         ]}
@@ -60,23 +63,23 @@ function CardTileComponent({ card, index = 0 }: Props) {
           onPress={onOpen}
           style={styles.mainHit}
         >
-          <View style={[styles.avatar, { backgroundColor: accent }]}>
-            <Text style={[styles.avatarText, { fontFamily: Fonts.bodyBold }]}>
+          <View style={[styles.avatar, { backgroundColor: pastelBg }]}>
+            <Text style={[styles.avatarText, { color: accent, fontFamily: Fonts.bodyBold }]}>
               {cardInitials(card.title, card.storeName)}
             </Text>
           </View>
           <View style={styles.copy}>
             <Text
-              style={[styles.kicker, { color: colors.textMuted, fontFamily: Fonts.bodyMedium }]}
-              numberOfLines={1}
-            >
-              {card.storeName} · {formatBarcodeLabel(card.codeFormat)}
-            </Text>
-            <Text
               style={[styles.title, { color: colors.text, fontFamily: Fonts.displayBold }]}
               numberOfLines={1}
             >
               {card.title}
+            </Text>
+            <Text
+              style={[styles.meta, { color: colors.textSecondary, fontFamily: Fonts.body }]}
+              numberOfLines={1}
+            >
+              {card.storeName} · {formatBarcodeLabel(card.codeFormat)}
             </Text>
           </View>
         </PressableScale>
@@ -86,9 +89,9 @@ function CardTileComponent({ card, index = 0 }: Props) {
           accessibilityLabel={`Show ${card.title} at checkout`}
           onPress={onPresent}
           hitSlop={8}
-          style={[styles.presentBtn, { backgroundColor: colors.accentSoft }]}
+          style={[styles.presentBtn, { backgroundColor: colors.accent }]}
         >
-          <MaterialCommunityIcons name="barcode" size={22} color={colors.accentText} />
+          <MaterialCommunityIcons name="barcode" size={20} color="#FFFFFF" />
         </Pressable>
       </View>
     </Animated.View>
@@ -99,15 +102,14 @@ export const CardTile = React.memo(CardTileComponent);
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: 84,
-    borderRadius: Radius.lg,
+    minHeight: 92,
+    borderRadius: Radius.xl,
     paddingLeft: Spacing.lg,
-    paddingRight: Spacing.sm,
+    paddingRight: Spacing.md,
     paddingVertical: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    borderWidth: StyleSheet.hairlineWidth,
   },
   mainHit: {
     flex: 1,
@@ -116,33 +118,31 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   avatar: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
     borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    letterSpacing: 0.4,
+    fontSize: 15,
+    letterSpacing: 0.2,
   },
   copy: {
     flex: 1,
     gap: 4,
   },
-  kicker: {
-    fontSize: 12,
-    letterSpacing: 0.2,
-  },
   title: {
-    fontSize: 17,
-    letterSpacing: -0.3,
+    fontSize: 16,
+    letterSpacing: -0.2,
+  },
+  meta: {
+    fontSize: 13,
   },
   presentBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.md,
+    width: 46,
+    height: 46,
+    borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },

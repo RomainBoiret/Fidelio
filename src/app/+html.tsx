@@ -19,7 +19,7 @@ export default function Root({ children }: PropsWithChildren) {
           name="description"
           content="Fidelio stores your loyalty cards: scan, local vault, quick checkout access - even offline."
         />
-        <meta name="theme-color" content="#2A2560" />
+        <meta name="theme-color" content="#3B6BFF" />
         <meta name="application-name" content="Fidelio" />
         <meta property="og:title" content="Fidelio - Loyalty cards" />
         <meta
@@ -27,6 +27,12 @@ export default function Root({ children }: PropsWithChildren) {
           content="Scan, store, and find your loyalty cards in a flash."
         />
         <meta property="og:type" content="website" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
       </head>
@@ -38,18 +44,18 @@ export default function Root({ children }: PropsWithChildren) {
 const responsiveBackground = `
   html, body, #root {
     min-height: 100%;
-    background-color: #F3F2F8;
+    background-color: #F3F5FA;
   }
   body {
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    color: #14122A;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    color: #1C1F2A;
   }
   @media (prefers-color-scheme: dark) {
     html, body, #root {
-      background-color: #0E0C1A;
+      background-color: #11141C;
     }
     body {
-      color: #F4F3FA;
+      color: #F4F6FB;
     }
   }
 `;

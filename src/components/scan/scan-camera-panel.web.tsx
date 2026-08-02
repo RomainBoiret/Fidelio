@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 
 type Props = {
   active: boolean;
@@ -315,8 +315,8 @@ const styles = StyleSheet.create({
   viewport: {
     height: 460,
     overflow: 'hidden',
-    borderRadius: Radius.xl,
-    backgroundColor: '#0E0C1A',
+    borderRadius: 20,
+    backgroundColor: '#081516',
     position: 'relative',
   },
   dimTop: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '36%',
-    backgroundColor: 'rgba(14, 12, 26, 0.45)',
+    backgroundColor: 'rgba(8, 21, 22, 0.45)',
   },
   dimBottom: {
     position: 'absolute',
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '28%',
-    backgroundColor: 'rgba(14, 12, 26, 0.45)',
+    backgroundColor: 'rgba(8, 21, 22, 0.45)',
   },
   band: {
     position: 'absolute',
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     padding: Spacing.lg,
-    backgroundColor: 'rgba(14, 12, 26, 0.55)',
+    backgroundColor: 'rgba(8, 21, 22, 0.55)',
   },
   status: {
     color: '#FFFFFF',

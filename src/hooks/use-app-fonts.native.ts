@@ -1,13 +1,10 @@
 import {
-  DMSans_400Regular,
-  DMSans_500Medium,
-  DMSans_700Bold,
-} from '@expo-google-fonts/dm-sans';
-import {
-  Outfit_600SemiBold,
-  Outfit_700Bold,
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
   useFonts,
-} from '@expo-google-fonts/outfit';
+} from '@expo-google-fonts/plus-jakarta-sans';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 
@@ -16,11 +13,10 @@ SplashScreen.preventAutoHideAsync().catch(() => undefined);
 /** Native: load brand fonts, then hide splash. */
 export function useAppFonts() {
   const [loaded] = useFonts({
-    Outfit_600SemiBold,
-    Outfit_700Bold,
-    DMSans_400Regular,
-    DMSans_500Medium,
-    DMSans_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
   });
 
   React.useEffect(() => {

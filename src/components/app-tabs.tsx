@@ -28,21 +28,20 @@ export default function AppTabs() {
         },
         tabBarStyle: {
           position: 'absolute',
-          left: 18,
-          right: 18,
-          bottom: Math.max(insets.bottom, 12),
-          height: 68,
-          borderRadius: Radius.xl,
+          left: 20,
+          right: 20,
+          bottom: Math.max(insets.bottom, 14),
+          height: 70,
+          borderRadius: Radius.full,
           backgroundColor: colors.backgroundElevated,
           borderTopWidth: 0,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: colors.border,
+          borderWidth: 0,
           paddingTop: 8,
           paddingBottom: 8,
           ...Shadow.floating,
           shadowColor: colors.shadow,
           ...(Platform.OS === 'web'
-            ? ({ boxShadow: `0 14px 40px ${colors.shadow}` } as object)
+            ? ({ boxShadow: `0 14px 36px ${colors.shadow}` } as object)
             : null),
         },
         tabBarBackground: () => (
@@ -50,7 +49,7 @@ export default function AppTabs() {
             style={[
               StyleSheet.absoluteFill,
               {
-                borderRadius: Radius.xl,
+                borderRadius: Radius.full,
                 backgroundColor: colors.backgroundElevated,
               },
             ]}
@@ -61,16 +60,11 @@ export default function AppTabs() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Cards',
+          title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[
-                styles.iconWrap,
-                focused && { backgroundColor: colors.accentSoft },
-              ]}
-            >
+            <View style={[styles.iconWrap, focused && { backgroundColor: colors.accentSoft }]}>
               <MaterialCommunityIcons
-                name={focused ? 'credit-card' : 'credit-card-outline'}
+                name={focused ? 'home' : 'home-outline'}
                 color={color}
                 size={22}
               />
@@ -85,28 +79,24 @@ export default function AppTabs() {
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
-                styles.iconWrap,
-                focused && { backgroundColor: colors.accentSoft },
+                styles.scanWrap,
+                { backgroundColor: focused ? colors.accentDeep : colors.accent },
               ]}
             >
-              <MaterialCommunityIcons name="barcode-scan" color={color} size={22} />
+              <MaterialCommunityIcons name="plus" color="#FFFFFF" size={24} />
             </View>
           ),
+          tabBarLabel: () => null,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[
-                styles.iconWrap,
-                focused && { backgroundColor: colors.accentSoft },
-              ]}
-            >
+            <View style={[styles.iconWrap, focused && { backgroundColor: colors.accentSoft }]}>
               <MaterialCommunityIcons
-                name={focused ? 'cog' : 'cog-outline'}
+                name={focused ? 'account' : 'account-outline'}
                 color={color}
                 size={22}
               />
@@ -125,5 +115,13 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  scanWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: Radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -18,
   },
 });

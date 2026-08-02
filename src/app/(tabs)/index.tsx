@@ -19,7 +19,7 @@ import { IconButton } from '@/components/ui/icon-button';
 import { Screen } from '@/components/ui/screen';
 import { useCards } from '@/data/store/cards-context';
 import { filterCards } from '@/domain/filter-cards';
-import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 function greetingForNow() {
@@ -37,20 +37,24 @@ export default function CardsScreen() {
 
   const filtered = filterCards(cards, query);
   const hasQuery = query.trim().length > 0;
+  const highlight =
+    cards.length === 0
+      ? undefined
+      : `${cards.length} card${cards.length === 1 ? '' : 's'}`;
 
   return (
     <Screen withTabInset padded={false} edges={['left', 'right']}>
       <CurveHero
         eyebrow={greetingForNow()}
-        title="Your cards, ready at checkout"
-        subtitle="Scan, store, find - even offline."
-        height={290}
+        title={cards.length === 0 ? "Let's add your first card" : "Let's checkout with your"}
+        highlight={highlight}
+        subtitle="Scan, store, and flash them at the register — even offline."
+        height={210}
         right={
           <IconButton
             name="plus"
-            tone="secondary"
+            tone="accent"
             onPress={() => router.push('/card/new')}
-            style={{ backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'transparent' }}
           />
         }
       />
@@ -58,45 +62,48 @@ export default function CardsScreen() {
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
         {loading ? (
           <View style={styles.center}>
-            <ActivityIndicator color={colors.accentText} />
+            <ActivityIndicator color={colors.accent} />
           </View>
         ) : error ? (
           <View style={styles.center}>
             <Text style={{ color: colors.danger, fontFamily: Fonts.body }}>{error}</Text>
             <Pressable onPress={() => void refresh()}>
-              <Text style={{ color: colors.accentText, fontFamily: Fonts.bodyMedium }}>
+              <Text style={{ color: colors.accent, fontFamily: Fonts.bodyMedium }}>
                 Try again
               </Text>
             </Pressable>
           </View>
         ) : cards.length === 0 ? (
-          <FadeIn delay={120}>
-            <View style={styles.empty}>
-              <Text style={[styles.emptyKicker, { color: colors.accentText, fontFamily: Fonts.bodyMedium }]}>
+          <FadeIn delay={100}>
+            <View
+              style={[
+                styles.emptyCard,
+                Shadow.card,
+                { backgroundColor: colors.backgroundElevated, shadowColor: colors.shadow },
+              ]}
+            >
+              <View style={[styles.emptyIcon, { backgroundColor: colors.pastelBlue }]}>
+                <MaterialCommunityIcons name="wallet-outline" size={28} color={colors.accent} />
+              </View>
+              <Text
+                style={[styles.emptyTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}
+              >
                 Empty vault
-              </Text>
-              <Text style={[styles.emptyTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}>
-                Add your first card
               </Text>
               <Text
                 style={[styles.emptyBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}
               >
-                Scan a code in store, or enter it by hand.
+                Scan a loyalty card in store, or enter the code by hand.
               </Text>
               <View style={styles.emptyActions}>
                 <PressableScale onPress={() => router.push('/scan')}>
                   <View style={[styles.primaryCta, { backgroundColor: colors.accent }]}>
-                    <Text style={{ color: '#FFF', fontFamily: Fonts.bodyBold }}>Scan</Text>
+                    <Text style={{ color: '#FFF', fontFamily: Fonts.bodyBold }}>Scan a card</Text>
                   </View>
                 </PressableScale>
                 <PressableScale onPress={() => router.push('/card/new')}>
-                  <View
-                    style={[
-                      styles.secondaryCta,
-                      { borderColor: colors.borderStrong, backgroundColor: colors.backgroundElevated },
-                    ]}
-                  >
-                    <Text style={{ color: colors.text, fontFamily: Fonts.bodyMedium }}>
+                  <View style={[styles.secondaryCta, { backgroundColor: colors.pastelBlue }]}>
+                    <Text style={{ color: colors.accent, fontFamily: Fonts.bodyMedium }}>
                       Manual entry
                     </Text>
                   </View>
@@ -110,21 +117,18 @@ export default function CardsScreen() {
               <View
                 style={[
                   styles.search,
+                  Shadow.card,
                   {
                     backgroundColor: colors.backgroundElevated,
-                    borderColor: colors.border,
+                    shadowColor: colors.shadow,
                   },
                 ]}
               >
-                <MaterialCommunityIcons
-                  name="magnify"
-                  size={20}
-                  color={colors.textMuted}
-                />
+                <MaterialCommunityIcons name="magnify" size={20} color={colors.textMuted} />
                 <TextInput
                   value={query}
                   onChangeText={setQuery}
-                  placeholder="Search name, store, or code"
+                  placeholder="Search cards or stores"
                   placeholderTextColor={colors.textMuted}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -152,35 +156,18 @@ export default function CardsScreen() {
               </View>
             </FadeIn>
 
-            <FadeIn delay={80}>
+            <View style={styles.sectionRow}>
               <Text
                 style={[styles.sectionTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}
               >
-                {hasQuery
-                  ? `${filtered.length} result${filtered.length === 1 ? '' : 's'}`
-                  : `${cards.length} card${cards.length === 1 ? '' : 's'}`}
+                {hasQuery ? 'Results' : 'Your cards'}
               </Text>
-            </FadeIn>
+            </View>
 
             {filtered.length === 0 ? (
-              <View style={styles.noResults}>
-                <Text
-                  style={[
-                    styles.noResultsTitle,
-                    { color: colors.text, fontFamily: Fonts.display },
-                  ]}
-                >
-                  No matches
-                </Text>
-                <Text
-                  style={[
-                    styles.noResultsBody,
-                    { color: colors.textSecondary, fontFamily: Fonts.body },
-                  ]}
-                >
-                  Try another name, store, or code fragment.
-                </Text>
-              </View>
+              <Text style={[styles.noResults, { color: colors.textMuted, fontFamily: Fonts.body }]}>
+                No matches. Try another name or code.
+              </Text>
             ) : (
               <FlatList
                 data={filtered}
@@ -208,7 +195,6 @@ export default function CardsScreen() {
 const styles = StyleSheet.create({
   sheet: {
     flex: 1,
-    marginTop: -6,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.sm,
   },
@@ -216,21 +202,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    minHeight: 48,
-    borderRadius: Radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.lg,
+    minHeight: 52,
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.xl,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
-    paddingVertical: 10,
+    paddingVertical: 12,
+  },
+  sectionRow: {
+    marginBottom: Spacing.md,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     letterSpacing: -0.3,
-    marginBottom: Spacing.lg,
   },
   center: {
     flex: 1,
@@ -239,50 +226,44 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     paddingBottom: 120,
   },
-  empty: {
-    paddingTop: Spacing.md,
-    gap: Spacing.sm,
+  emptyCard: {
+    borderRadius: Radius.xl,
+    padding: Spacing.xl,
+    gap: Spacing.md,
   },
-  emptyKicker: {
-    fontSize: 13,
-    letterSpacing: 0.4,
+  emptyIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: Radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyTitle: {
-    fontSize: 28,
-    letterSpacing: -0.6,
-    lineHeight: 32,
+    fontSize: 22,
+    letterSpacing: -0.3,
   },
   emptyBody: {
     fontSize: 15,
     lineHeight: 22,
-    maxWidth: 300,
-    marginBottom: Spacing.md,
+    maxWidth: 280,
   },
   emptyActions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.sm,
+    marginTop: Spacing.sm,
   },
   primaryCta: {
-    borderRadius: Radius.md,
+    borderRadius: Radius.full,
     paddingHorizontal: Spacing.xl,
     paddingVertical: 14,
   },
   secondaryCta: {
-    borderRadius: Radius.md,
+    borderRadius: Radius.full,
     paddingHorizontal: Spacing.xl,
     paddingVertical: 14,
-    borderWidth: 1,
   },
   noResults: {
-    paddingTop: Spacing.md,
-    gap: Spacing.sm,
-  },
-  noResultsTitle: {
-    fontSize: 18,
-    letterSpacing: -0.2,
-  },
-  noResultsBody: {
     fontSize: 14,
     lineHeight: 20,
   },

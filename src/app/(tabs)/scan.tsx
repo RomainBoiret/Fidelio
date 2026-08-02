@@ -115,7 +115,7 @@ export default function ScanScreen() {
   if (!permission) {
     return (
       <Screen withTabInset padded={false} edges={['left', 'right']}>
-        <CurveHero eyebrow="Scan" title="Getting ready…" height={220} />
+        <CurveHero eyebrow="Scan" title="Getting ready…" height={160} />
       </Screen>
     );
   }
@@ -127,9 +127,9 @@ export default function ScanScreen() {
           eyebrow="Camera"
           title="Allow scanning"
           subtitle="Fidelio reads QR and barcodes to create your card."
-          height={260}
+          height={180}
         />
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { backgroundColor: colors.background }]}>
           <Button label="Allow camera" onPress={() => void requestPermission()} />
           {!permission.canAskAgain ? (
             <Button
@@ -148,8 +148,8 @@ export default function ScanScreen() {
       <CurveHero
         eyebrow="Quick scan"
         title="Aim at the barcode"
-        subtitle="The black strip at the bottom of the card - not the QR."
-        height={200}
+        subtitle="The black strip at the bottom of the card — not the QR."
+        height={170}
       />
 
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
@@ -166,8 +166,7 @@ export default function ScanScreen() {
             Tip
           </Text>
           <Text style={[styles.hintBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
-            Place the barcode strip in the horizontal frame, flat, about 10-15 cm away,
-            without glare. Skip the QR: that is not the checkout code.
+            Place the barcode strip in the frame, flat, about 10–15 cm away, without glare.
           </Text>
 
           {canUseSystemScanner ? (
@@ -192,7 +191,6 @@ export default function ScanScreen() {
 
 const styles = StyleSheet.create({
   sheet: {
-    marginTop: -6,
     paddingHorizontal: Spacing.xl,
     gap: Spacing.lg,
     paddingBottom: 140,
@@ -201,7 +199,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   hintTitle: {
-    fontSize: 16,
+    fontSize: 18,
   },
   hintBody: {
     fontSize: 14,

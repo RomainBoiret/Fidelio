@@ -55,7 +55,7 @@ export default function NewCardScreen() {
         eyebrow="New card"
         title="Manual entry"
         subtitle="Handy when scanning is awkward, or when you want to paste a code."
-        height={240}
+        height={170}
         right={<IconButton name="close" tone="secondary" onPress={() => router.back()} />}
       />
 
@@ -106,7 +106,6 @@ export default function NewCardScreen() {
 
 const styles = StyleSheet.create({
   sheet: {
-    marginTop: -8,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.xxxl,
   },

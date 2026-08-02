@@ -33,7 +33,7 @@ export function Button({
     variant === 'primary'
       ? colors.accent
       : variant === 'secondary'
-        ? colors.surfaceStrong
+        ? colors.pastelBlue
         : variant === 'danger'
           ? colors.danger
           : 'transparent';
@@ -41,7 +41,9 @@ export function Button({
   const textColor =
     variant === 'primary' || variant === 'danger'
       ? '#FFFFFF'
-      : colors.text;
+      : variant === 'secondary'
+        ? colors.accent
+        : colors.text;
 
   return (
     <Pressable
@@ -58,7 +60,7 @@ export function Button({
             borderColor: variant === 'ghost' ? colors.borderStrong : 'transparent',
             borderWidth: variant === 'ghost' ? 1 : 0,
             shadowColor: colors.shadow,
-            opacity: disabled ? 0.45 : pressed ? 0.9 : 1,
+            opacity: disabled ? 0.45 : pressed ? 0.92 : 1,
             transform: [{ scale: pressed && !disabled ? 0.98 : 1 }],
           },
           style,
@@ -76,7 +78,7 @@ export function Button({
 const styles = StyleSheet.create({
   base: {
     minHeight: 54,
-    borderRadius: Radius.md,
+    borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
