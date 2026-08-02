@@ -31,6 +31,8 @@ const FORMAT_MAP: Record<BarcodeFormat, JsBarcodeFormat | 'QR'> = {
   ean8: 'EAN8',
   upc_a: 'UPC',
   upc_e: 'UPCE',
+  itf14: 'ITF14',
+  codabar: 'codabar',
   pdf417: 'CODE128',
   aztec: 'QR',
   unknown: 'CODE128',
@@ -98,7 +100,7 @@ export function encodeLinearBarcode(
 
       const flat = flattenEncodeResult(encoder.encode(), trimmed);
       if (!flat.data) {
-        lastError = new Error('Encodage vide.');
+        lastError = new Error('Empty encoding.');
         continue;
       }
 

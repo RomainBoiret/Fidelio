@@ -19,7 +19,7 @@ export function buildCard(input: CreateLoyaltyCardInput): LoyaltyCard {
 
   return {
     id: Crypto.randomUUID(),
-    title: input.title.trim() || input.storeName.trim() || 'Carte',
+    title: input.title.trim() || input.storeName.trim() || 'Card',
     storeName: normalizeStoreName(input.storeName) || 'Store',
     codeValue: input.codeValue.trim(),
     codeFormat: input.codeFormat ?? 'unknown',
