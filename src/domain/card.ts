@@ -8,6 +8,8 @@ const FORMAT_LABELS: Record<BarcodeFormat, string> = {
   code39: 'Code 39',
   upc_a: 'UPC-A',
   upc_e: 'UPC-E',
+  itf14: 'ITF-14',
+  codabar: 'Codabar',
   pdf417: 'PDF417',
   aztec: 'Aztec',
   unknown: 'Code',
@@ -15,6 +17,23 @@ const FORMAT_LABELS: Record<BarcodeFormat, string> = {
 
 export function formatBarcodeLabel(format: BarcodeFormat): string {
   return FORMAT_LABELS[format];
+}
+
+/**
+ * Best-effort format guess for manual entry (digits-only retail codes).
+ * Falls back to Code 128 for mixed/alphanumeric payloads.
+ */
+export function guessBarcodeFormat(value: string): BarcodeFormat {
+  const trimmed = value.trim();
+  if (!trimmed) return 'unknown';
+
+  if (/^\d{13}$/.test(trimmed)) return 'ean13';
+  if (/^\d{12}$/.test(trimmed)) return 'upc_a';
+  if (/^\d{8}$/.test(trimmed)) return 'ean8';
+  if (/^\d{14}$/.test(trimmed)) return 'itf14';
+  if (/^\d{6,8}$/.test(trimmed)) return 'upc_e';
+
+  return 'code128';
 }
 
 export function normalizeStoreName(value: string): string {

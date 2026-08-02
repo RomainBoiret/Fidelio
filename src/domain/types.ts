@@ -6,6 +6,8 @@ export type BarcodeFormat =
   | 'code39'
   | 'upc_a'
   | 'upc_e'
+  | 'itf14'
+  | 'codabar'
   | 'pdf417'
   | 'aztec'
   | 'unknown';

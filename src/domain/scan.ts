@@ -37,6 +37,11 @@ export function mapBarcodeType(type: string): BarcodeFormat {
       return 'upc_a';
     case 'upc_e':
       return 'upc_e';
+    case 'itf14':
+    case 'itf':
+      return 'itf14';
+    case 'codabar':
+      return 'codabar';
     case 'pdf417':
       return 'pdf417';
     case 'aztec':

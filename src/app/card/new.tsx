@@ -8,6 +8,7 @@ import { IconButton } from '@/components/ui/icon-button';
 import { Screen } from '@/components/ui/screen';
 import { TextField } from '@/components/ui/text-field';
 import { useCards } from '@/data/store/cards-context';
+import { guessBarcodeFormat } from '@/domain/card';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -29,12 +30,13 @@ export default function NewCardScreen() {
 
     setSaving(true);
     try {
+      const trimmedCode = codeValue.trim();
       const card = await addCard({
         title: title.trim() || storeName.trim() || 'My card',
         storeName: storeName.trim() || 'Store',
-        codeValue: codeValue.trim(),
+        codeValue: trimmedCode,
         notes: notes.trim() || null,
-        codeFormat: 'unknown',
+        codeFormat: guessBarcodeFormat(trimmedCode),
       });
       router.replace(`/card/${card.id}`);
     } catch (err) {
