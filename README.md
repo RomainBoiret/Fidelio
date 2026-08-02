@@ -65,5 +65,6 @@ src/
 1. ~~Local core + manual add~~
 2. ~~Camera scan (quick create)~~
 3. ~~Fullscreen barcode display~~
-4. Categories + search
-5. Auth + Supabase sync
+4. ~~Search on cards list~~
+5. Categories
+6. Auth + Supabase sync
