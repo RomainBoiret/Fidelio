@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import Constants from 'expo-constants';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   FadeInUp,
@@ -7,39 +8,66 @@ import Animated, {
 
 import { CurveHero } from '@/components/ui/curve-hero';
 import { Screen } from '@/components/ui/screen';
+import { useCards } from '@/data/store/cards-context';
 import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-const ITEMS = [
-  {
-    title: 'Local storage',
-    body: 'Your cards already live in SQLite on this device.',
-  },
-  {
-    title: 'Account & sync',
-    body: 'Supabase Auth + pull/push will land in a later milestone.',
-  },
-  {
-    title: 'Categories',
-    body: 'Organize groceries, restaurants, sports… without digging.',
-  },
-];
+type InfoItem = {
+  title: string;
+  body: string;
+};
+
+function appVersion() {
+  return (
+    Constants.expoConfig?.version ??
+    Constants.nativeAppVersion ??
+    '0.1.0'
+  );
+}
+
+function storageLabel() {
+  return Platform.OS === 'web'
+    ? 'Browser localStorage on this device'
+    : 'SQLite vault on this device';
+}
 
 export default function SettingsScreen() {
   const colors = useTheme();
   const reduceMotion = useReducedMotion();
+  const { cards, loading } = useCards();
+
+  const items: InfoItem[] = [
+    {
+      title: 'Vault',
+      body: loading
+        ? 'Loading your cards…'
+        : `${cards.length} card${cards.length === 1 ? '' : 's'} · ${storageLabel()}`,
+    },
+    {
+      title: 'App version',
+      body: `Fidelio ${appVersion()} · ${Platform.OS}`,
+    },
+    {
+      title: 'Account & sync',
+      body: 'Supabase Auth + pull/push will land in a later milestone.',
+    },
+    {
+      title: 'Categories',
+      body: 'Organize groceries, restaurants, sports… without digging.',
+    },
+  ];
 
   return (
     <Screen withTabInset scroll padded={false} edges={['left', 'right']}>
       <CurveHero
         eyebrow="Settings"
-        title="More is coming"
-        subtitle="Auth, cloud sync and categories - for now everything stays local."
+        title="Your vault"
+        subtitle="Local-first today. Sync and categories are next."
         height={250}
       />
 
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
-        {ITEMS.map((item, index) => (
+        {items.map((item, index) => (
           <Animated.View
             key={item.title}
             entering={
