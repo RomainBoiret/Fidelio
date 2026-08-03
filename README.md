@@ -8,7 +8,7 @@ Mobile app to scan, store, and find your loyalty cards - local-first, with cloud
 - Expo Router (tabs + stack)
 - SQLite (`expo-sqlite`) as the local source of truth
 - Camera / barcode scan (`expo-camera`) - native + web (BarcodeDetector)
-- Soft productivity UI (electric blue, pastel cards), Plus Jakarta Sans
+- Ticket-wallet identity (perforated cards, scan motifs), Plus Jakarta Sans
 
 ## Get started
 

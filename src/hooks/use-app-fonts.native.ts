@@ -1,8 +1,8 @@
 import {
   PlusJakartaSans_400Regular,
   PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
   PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
 import * as SplashScreen from 'expo-splash-screen';
@@ -15,8 +15,8 @@ export function useAppFonts() {
   const [loaded] = useFonts({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
     PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
   });
 
   React.useEffect(() => {

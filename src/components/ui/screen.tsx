@@ -10,7 +10,7 @@ type Props = ViewProps & {
   scroll?: boolean;
   padded?: boolean;
   withTabInset?: boolean;
-  /** Override safe-area edges. Use `['left','right']` under CurveHero so the hero bleeds under status bar. */
+  /** Override safe-area edges. Use `['left','right']` under GalleryHeader so the masthead bleeds under status bar. */
   edges?: Edge[];
 };
 

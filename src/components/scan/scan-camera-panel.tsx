@@ -26,7 +26,7 @@ export function ScanCameraPanel({
   active,
   locked,
   accentColor,
-  statusLabel = 'Align the barcode in the band',
+  statusLabel = 'Align the barcode in the frame',
   onBarcode,
 }: Props) {
   const [torch, setTorch] = React.useState(false);
@@ -79,16 +79,16 @@ export function ScanCameraPanel({
         onMountError={() => setReady(false)}
       />
 
-      <View style={styles.dimTop} pointerEvents="none" />
-      <View style={styles.dimBottom} pointerEvents="none" />
-      <View style={[styles.band, { borderColor: accentColor }]} pointerEvents="none">
+      <View style={[styles.dimTop, styles.noPointer]} />
+      <View style={[styles.dimBottom, styles.noPointer]} />
+      <View style={[styles.band, styles.noPointer, { borderColor: accentColor }]}>
         <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
         <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
         <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
         <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
       </View>
 
-      <View style={styles.overlayBottom} pointerEvents="box-none">
+      <View style={[styles.overlayBottom, styles.boxNone]}>
         <Text style={[styles.status, { fontFamily: Fonts.bodyMedium }]}>
           {locked ? 'Code captured…' : ready ? statusLabel : 'Opening camera…'}
         </Text>
@@ -193,5 +193,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  noPointer: {
+    pointerEvents: 'none',
+  },
+  boxNone: {
+    pointerEvents: 'box-none',
   },
 });

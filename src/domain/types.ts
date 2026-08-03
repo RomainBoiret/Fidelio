@@ -21,6 +21,8 @@ export type LoyaltyCard = {
   notes: string | null;
   categoryId: string | null;
   accentColor: string | null;
+  isFavorite: boolean;
+  lastOpenedAt: string | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -34,6 +36,7 @@ export type CreateLoyaltyCardInput = {
   notes?: string | null;
   categoryId?: string | null;
   accentColor?: string | null;
+  isFavorite?: boolean;
 };
 
 export type UpdateLoyaltyCardInput = Partial<

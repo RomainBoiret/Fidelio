@@ -13,6 +13,7 @@ export default function RootLayout() {
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
   const colors = Colors[isDark ? 'dark' : 'light'];
+  const isWeb = Platform.OS === 'web';
 
   return (
     <CardsProvider>
@@ -28,26 +29,52 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
-          animation: Platform.OS === 'web' ? 'none' : 'fade_from_bottom',
+          animation: isWeb ? 'none' : 'slide_from_right',
+          animationDuration: 280,
+          gestureEnabled: !isWeb,
+          fullScreenGestureEnabled: !isWeb,
           title: 'Fidelio',
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ title: 'Fidelio' }} />
+        <Stack.Screen name="(tabs)" options={{ title: 'Fidelio', animation: 'fade' }} />
+        <Stack.Screen
+          name="scan"
+          options={{
+            title: 'Scan',
+            presentation: 'modal',
+            animation: isWeb ? 'none' : 'slide_from_bottom',
+            animationDuration: 300,
+            gestureEnabled: !isWeb,
+          }}
+        />
         <Stack.Screen
           name="card/new"
           options={{
             title: 'New card',
             presentation: 'modal',
-            animation: Platform.OS === 'web' ? 'none' : 'slide_from_bottom',
+            animation: isWeb ? 'none' : 'slide_from_bottom',
+            animationDuration: 320,
+            gestureEnabled: !isWeb,
           }}
         />
-        <Stack.Screen name="card/[id]/index" options={{ title: 'Card details' }} />
+        <Stack.Screen
+          name="card/[id]/index"
+          options={{
+            title: 'Card details',
+            animation: isWeb ? 'none' : 'slide_from_right',
+            animationDuration: 280,
+            gestureEnabled: !isWeb,
+            fullScreenGestureEnabled: !isWeb,
+          }}
+        />
         <Stack.Screen
           name="card/[id]/present"
           options={{
             title: 'Checkout code',
             presentation: 'fullScreenModal',
-            animation: Platform.OS === 'web' ? 'none' : 'fade',
+            animation: isWeb ? 'none' : 'fade',
+            animationDuration: 220,
+            gestureEnabled: !isWeb,
           }}
         />
       </Stack>

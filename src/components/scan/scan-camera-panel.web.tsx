@@ -67,7 +67,7 @@ export function ScanCameraPanel({
   active,
   locked,
   accentColor,
-  statusLabel = 'Align the barcode in the band',
+  statusLabel = 'Align the barcode in the frame',
   onBarcode,
 }: Props) {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -256,16 +256,16 @@ export function ScanCameraPanel({
       })}
 
       {/* Wide barcode guide */}
-      <View style={styles.dimTop} pointerEvents="none" />
-      <View style={styles.dimBottom} pointerEvents="none" />
-      <View style={[styles.band, { borderColor: accentColor }]} pointerEvents="none">
+      <View style={[styles.dimTop, styles.noPointer]} />
+      <View style={[styles.dimBottom, styles.noPointer]} />
+      <View style={[styles.band, styles.noPointer, { borderColor: accentColor }]}>
         <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
         <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
         <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
         <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
       </View>
 
-      <View style={styles.overlayBottom} pointerEvents="none">
+      <View style={[styles.overlayBottom, styles.noPointer]}>
         <Text style={[styles.status, { fontFamily: Fonts.bodyMedium }]}>
           {error
             ? error
@@ -365,5 +365,8 @@ const styles = StyleSheet.create({
   status: {
     color: '#FFFFFF',
     fontSize: 14,
+  },
+  noPointer: {
+    pointerEvents: 'none',
   },
 });

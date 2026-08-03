@@ -26,6 +26,8 @@ export function buildCard(input: CreateLoyaltyCardInput): LoyaltyCard {
     notes: input.notes?.trim() || null,
     categoryId: input.categoryId ?? null,
     accentColor: accent,
+    isFavorite: input.isFavorite ?? false,
+    lastOpenedAt: null,
     createdAt: stamp,
     updatedAt: stamp,
     deletedAt: null,
@@ -59,6 +61,31 @@ export function applyCardUpdate(
       input.accentColor === undefined
         ? existing.accentColor
         : input.accentColor,
+    isFavorite:
+      input.isFavorite === undefined ? existing.isFavorite : input.isFavorite,
+    lastOpenedAt:
+      input.lastOpenedAt === undefined
+        ? existing.lastOpenedAt
+        : input.lastOpenedAt,
     updatedAt: nowIso(),
+  };
+}
+
+/** Normalize cards loaded from older storage shapes. */
+export function normalizeCard(raw: Partial<LoyaltyCard> & Pick<LoyaltyCard, 'id'>): LoyaltyCard {
+  return {
+    id: raw.id,
+    title: raw.title ?? 'Card',
+    storeName: raw.storeName ?? 'Store',
+    codeValue: raw.codeValue ?? '',
+    codeFormat: raw.codeFormat ?? 'unknown',
+    notes: raw.notes ?? null,
+    categoryId: raw.categoryId ?? null,
+    accentColor: raw.accentColor ?? null,
+    isFavorite: Boolean(raw.isFavorite),
+    lastOpenedAt: raw.lastOpenedAt ?? null,
+    createdAt: raw.createdAt ?? nowIso(),
+    updatedAt: raw.updatedAt ?? nowIso(),
+    deletedAt: raw.deletedAt ?? null,
   };
 }

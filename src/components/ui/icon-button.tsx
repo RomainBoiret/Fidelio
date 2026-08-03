@@ -14,7 +14,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-import { Radius, Shadow } from '@/constants/theme';
+import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -29,7 +29,7 @@ type Props = PressableProps & {
 export function IconButton({
   name,
   tone = 'neutral',
-  size = 22,
+  size = 20,
   style,
   onPressIn,
   onPressOut,
@@ -41,13 +41,16 @@ export function IconButton({
 
   const background =
     tone === 'accent'
-      ? colors.accent
+      ? colors.backgroundElevated
       : tone === 'secondary'
-        ? colors.surface
+        ? colors.backgroundElevated
         : colors.backgroundElevated;
 
   const iconColor =
-    tone === 'accent' ? '#FFFFFF' : colors.text;
+    tone === 'accent' ? colors.accent : colors.ink;
+
+  const borderColor =
+    tone === 'accent' ? colors.accent : colors.ink;
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -58,23 +61,23 @@ export function IconButton({
       accessibilityRole="button"
       onPressIn={(e) => {
         if (!reduceMotion) {
-          scale.value = withSpring(0.9, { damping: 14, stiffness: 380 });
+          // eslint-disable-next-line react-hooks/immutability -- shared value write
+          scale.value = withSpring(0.92, { damping: 14, stiffness: 380 });
         }
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
         if (!reduceMotion) {
+          // eslint-disable-next-line react-hooks/immutability -- shared value write
           scale.value = withSpring(1, { damping: 12, stiffness: 220 });
         }
         onPressOut?.(e);
       }}
       style={[
         styles.btn,
-        Shadow.card,
         {
           backgroundColor: background,
-          borderColor: colors.border,
-          shadowColor: colors.shadow,
+          borderColor,
         },
         animatedStyle,
         style,
@@ -88,11 +91,11 @@ export function IconButton({
 
 const styles = StyleSheet.create({
   btn: {
-    width: 46,
-    height: 46,
-    borderRadius: Radius.full,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.xs,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
   },
 });

@@ -56,16 +56,17 @@ export function labelsFromScan(data: string, type: string) {
   if (format === 'qr') {
     try {
       const url = new URL(data);
+      const host = url.hostname.replace(/^www\./, '') || 'QR';
       return {
-        title: 'Scanned card',
-        storeName: url.hostname.replace(/^www\./, '') || 'QR',
+        title: 'Loyalty card',
+        storeName: host,
       };
     } catch {
-      return { title: 'QR card', storeName: 'Scanned store' };
+      return { title: 'Loyalty card', storeName: 'QR store' };
     }
   }
   return {
-    title: 'Scanned card',
-    storeName: 'Scanned store',
+    title: 'Loyalty card',
+    storeName: 'New store',
   };
 }

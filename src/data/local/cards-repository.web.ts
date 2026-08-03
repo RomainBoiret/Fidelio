@@ -1,11 +1,11 @@
 /**
  * Web storage fallback.
- * Avoids expo-sqlite's wa-sqlite.wasm (alpha / Metro headaches) while
- * keeping the same repository API for browser previews.
+ * Avoids expo-sqlite's wa-sqlite.wasm while keeping the same repository API.
  */
 import {
   applyCardUpdate,
   buildCard,
+  normalizeCard,
   nowIso,
 } from '@/data/local/card-factory';
 import type {
@@ -15,7 +15,7 @@ import type {
   UpdateLoyaltyCardInput,
 } from '@/domain/types';
 
-const STORAGE_KEY = 'fidelio.cards.v1';
+const STORAGE_KEY = 'fidelio.cards.v2';
 
 type StoreShape = {
   cards: LoyaltyCard[];
@@ -27,11 +27,15 @@ function readStore(): StoreShape {
     return { cards: [], categories: [] };
   }
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw =
+      localStorage.getItem(STORAGE_KEY) ??
+      localStorage.getItem('fidelio.cards.v1');
     if (!raw) return { cards: [], categories: [] };
     const parsed = JSON.parse(raw) as StoreShape;
     return {
-      cards: Array.isArray(parsed.cards) ? parsed.cards : [],
+      cards: Array.isArray(parsed.cards)
+        ? parsed.cards.map((c) => normalizeCard(c))
+        : [],
       categories: Array.isArray(parsed.categories) ? parsed.categories : [],
     };
   } catch {
@@ -47,7 +51,11 @@ function writeStore(store: StoreShape) {
 export async function listCards(): Promise<LoyaltyCard[]> {
   return readStore()
     .cards.filter((card) => card.deletedAt == null)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    .sort((a, b) => {
+      const aKey = a.lastOpenedAt ?? a.updatedAt;
+      const bKey = b.lastOpenedAt ?? b.updatedAt;
+      return bKey.localeCompare(aKey);
+    });
 }
 
 export async function getCard(id: string): Promise<LoyaltyCard | null> {

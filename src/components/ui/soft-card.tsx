@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
 
 import { Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -19,7 +19,7 @@ export function SoftCard({ children, style, padded = true, ...rest }: Props) {
         Shadow.card,
         {
           backgroundColor: colors.backgroundElevated,
-          shadowColor: colors.shadow,
+          ...(Platform.OS === 'web' ? null : { shadowColor: colors.shadow }),
         },
         padded && styles.padded,
         style,
@@ -33,7 +33,7 @@ export function SoftCard({ children, style, padded = true, ...rest }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Radius.xl,
+    borderRadius: Radius.md,
   },
   padded: {
     padding: Spacing.lg,

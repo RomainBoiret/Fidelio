@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import * as Brightness from 'expo-brightness';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { StatusBar } from 'expo-status-bar';
@@ -10,6 +10,7 @@ import { LoyaltyBarcode } from '@/components/cards/loyalty-barcode';
 import { useCards } from '@/data/store/cards-context';
 import { formatBarcodeLabel } from '@/domain/card';
 import { Fonts, Spacing } from '@/constants/theme';
+import { useSafeBack } from '@/hooks/use-safe-back';
 
 function paramId(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
@@ -24,10 +25,14 @@ const KEEP_AWAKE_TAG = 'fidelio-checkout';
 export default function CardPresentScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const id = paramId(params.id);
-  const router = useRouter();
+  const goBack = useSafeBack(id ? `/card/${id}` : '/');
   const insets = useSafeAreaInsets();
-  const { getCardById } = useCards();
+  const { getCardById, markOpened } = useCards();
   const card = id ? getCardById(id) : undefined;
+
+  React.useEffect(() => {
+    if (id) void markOpened(id);
+  }, [id, markOpened]);
 
   React.useEffect(() => {
     let previous: number | null = null;
@@ -65,7 +70,7 @@ export default function CardPresentScreen() {
     return (
       <View style={[styles.root, { paddingTop: insets.top + Spacing.lg }]}>
         <Text style={styles.missing}>Card not found</Text>
-        <Pressable onPress={() => router.back()} style={styles.closeHit}>
+        <Pressable onPress={goBack} style={styles.closeHit}>
           <Text style={styles.closeText}>Close</Text>
         </Pressable>
       </View>
@@ -88,7 +93,7 @@ export default function CardPresentScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close"
-          onPress={() => router.back()}
+          onPress={goBack}
           style={styles.closeHit}
           hitSlop={12}
         >
@@ -120,19 +125,21 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   store: {
-    color: '#6B7285',
-    fontSize: 13,
+    color: '#77746E',
+    fontSize: 11,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
     fontFamily: Fonts.bodyMedium,
   },
   title: {
-    color: '#1C1F2A',
-    fontSize: 22,
-    fontFamily: Fonts.displayBold,
+    color: '#171717',
+    fontSize: 24,
+    fontFamily: Fonts.display,
     letterSpacing: -0.3,
-    marginTop: 2,
+    marginTop: 4,
   },
   format: {
-    color: '#9AA1B2',
+    color: '#77746E',
     fontSize: 12,
     fontFamily: Fonts.body,
     marginTop: 4,
@@ -140,11 +147,15 @@ const styles = StyleSheet.create({
   closeHit: {
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: '#3B6BFF',
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: '#315CFF',
+    backgroundColor: '#FFFEFA',
+    minHeight: 44,
+    justifyContent: 'center',
   },
   closeText: {
-    color: '#FFFFFF',
+    color: '#315CFF',
     fontFamily: Fonts.bodyBold,
     fontSize: 14,
   },
@@ -157,13 +168,13 @@ const styles = StyleSheet.create({
   },
   hint: {
     textAlign: 'center',
-    color: '#6B7285',
+    color: '#77746E',
     fontSize: 13,
     fontFamily: Fonts.body,
     paddingHorizontal: Spacing.xl,
   },
   missing: {
-    color: '#1C1F2A',
+    color: '#171717',
     fontSize: 18,
     fontFamily: Fonts.display,
     textAlign: 'center',

@@ -49,10 +49,10 @@ export function cardInitials(title: string, storeName: string): string {
 }
 
 export const CARD_ACCENTS = [
-  '#3B6BFF',
-  '#FF5C6C',
-  '#8B7CFF',
-  '#3DBE8B',
-  '#5B8CFF',
-  '#FF8A65',
+  '#1A3A6B',
+  '#C45C3A',
+  '#2F8F6B',
+  '#5C4A7A',
+  '#8A7A5C',
+  '#315CFF',
 ] as const;

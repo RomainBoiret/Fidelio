@@ -11,8 +11,7 @@ type Props = {
 export function WaveEdge({ fill, height = 28, flip = false }: Props) {
   return (
     <View
-      style={[styles.wrap, { height }, flip && styles.flip]}
-      pointerEvents="none"
+      style={[styles.wrap, { height, pointerEvents: 'none' }, flip && styles.flip]}
     >
       <Svg width="100%" height={height} viewBox="0 0 390 28" preserveAspectRatio="none">
         <Path

@@ -1,25 +1,30 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
 import * as React from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
+import { FeaturedCard } from '@/components/cards/featured-card';
 import { CardTile } from '@/components/cards/card-tile';
 import { FadeIn } from '@/components/motion/fade-in';
 import { PressableScale } from '@/components/motion/pressable-scale';
-import { CurveHero } from '@/components/ui/curve-hero';
-import { IconButton } from '@/components/ui/icon-button';
+import { EmptyGallery } from '@/components/brand/empty-gallery';
+import { GalleryHeader } from '@/components/ui/gallery-header';
 import { Screen } from '@/components/ui/screen';
 import { useCards } from '@/data/store/cards-context';
-import { filterCards } from '@/domain/filter-cards';
-import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
+import {
+  favoriteCards,
+  mostRecentCard,
+  recentlyAdded,
+} from '@/domain/filter-cards';
+import { catalogueIndex } from '@/domain/gallery';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 function greetingForNow() {
@@ -29,82 +34,66 @@ function greetingForNow() {
   return 'Good evening';
 }
 
-export default function CardsScreen() {
+/** Daily home — recent card + quick checkout in one or two taps. */
+export default function HomeScreen() {
   const colors = useTheme();
   const router = useRouter();
   const { cards, loading, error, refresh } = useCards();
-  const [query, setQuery] = React.useState('');
 
-  const filtered = filterCards(cards, query);
-  const hasQuery = query.trim().length > 0;
-  const highlight =
-    cards.length === 0
-      ? undefined
-      : `${cards.length} card${cards.length === 1 ? '' : 's'}`;
+  const recent = mostRecentCard(cards);
+  const favorites = favoriteCards(cards).slice(0, 4);
+  const added = recentlyAdded(cards, 3);
 
   return (
     <Screen withTabInset padded={false} edges={['left', 'right']}>
-      <CurveHero
-        eyebrow={greetingForNow()}
-        title={cards.length === 0 ? "Let's add your first card" : "Let's checkout with your"}
-        highlight={highlight}
-        subtitle="Scan, store, and flash them at the register — even offline."
-        height={210}
-        right={
-          <IconButton
-            name="plus"
-            tone="accent"
-            onPress={() => router.push('/card/new')}
-          />
+      <GalleryHeader
+        title={greetingForNow()}
+        subtitle={
+          cards.length === 0
+            ? 'Add a loyalty card to get started.'
+            : `${cards.length} card${cards.length === 1 ? '' : 's'} ready for checkout.`
         }
+        pieceCount={cards.length}
+        onAdd={() => router.navigate('/add')}
       />
 
-      <View style={[styles.sheet, { backgroundColor: colors.background }]}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: colors.background }}
+        contentContainerStyle={styles.sheet}
+        showsVerticalScrollIndicator={false}
+      >
         {loading ? (
-          <View style={styles.center}>
-            <ActivityIndicator color={colors.accent} />
-          </View>
+          <ActivityIndicator color={colors.accent} style={{ marginTop: 40 }} />
         ) : error ? (
           <View style={styles.center}>
             <Text style={{ color: colors.danger, fontFamily: Fonts.body }}>{error}</Text>
             <Pressable onPress={() => void refresh()}>
-              <Text style={{ color: colors.accent, fontFamily: Fonts.bodyMedium }}>
-                Try again
-              </Text>
+              <Text style={{ color: colors.accent, fontFamily: Fonts.bodyMedium }}>Try again</Text>
             </Pressable>
           </View>
         ) : cards.length === 0 ? (
-          <FadeIn delay={100}>
-            <View
-              style={[
-                styles.emptyCard,
-                Shadow.card,
-                { backgroundColor: colors.backgroundElevated, shadowColor: colors.shadow },
-              ]}
-            >
-              <View style={[styles.emptyIcon, { backgroundColor: colors.pastelBlue }]}>
-                <MaterialCommunityIcons name="wallet-outline" size={28} color={colors.accent} />
-              </View>
-              <Text
-                style={[styles.emptyTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}
-              >
-                Empty vault
+          <FadeIn>
+            <View style={[styles.emptyCard, { backgroundColor: colors.backgroundElevated }]}>
+              <EmptyGallery size={148} />
+              <Text style={[styles.emptyTitle, { color: colors.ink, fontFamily: Fonts.displayBold }]}>
+                Your gallery is waiting.
               </Text>
-              <Text
-                style={[styles.emptyBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}
-              >
-                Scan a loyalty card in store, or enter the code by hand.
+              <Text style={[styles.emptyBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
+                Scan a barcode or add a card manually — then present it at checkout in one tap.
               </Text>
               <View style={styles.emptyActions}>
-                <PressableScale onPress={() => router.push('/scan')}>
+                <PressableScale onPress={() => router.push('/scan')} accessibilityLabel="Scan a card">
                   <View style={[styles.primaryCta, { backgroundColor: colors.accent }]}>
                     <Text style={{ color: '#FFF', fontFamily: Fonts.bodyBold }}>Scan a card</Text>
                   </View>
                 </PressableScale>
-                <PressableScale onPress={() => router.push('/card/new')}>
-                  <View style={[styles.secondaryCta, { backgroundColor: colors.pastelBlue }]}>
-                    <Text style={{ color: colors.accent, fontFamily: Fonts.bodyMedium }}>
-                      Manual entry
+                <PressableScale
+                  onPress={() => router.push('/card/new')}
+                  accessibilityLabel="Add manually"
+                >
+                  <View style={[styles.secondaryCta, { backgroundColor: colors.surface }]}>
+                    <Text style={{ color: colors.ink, fontFamily: Fonts.bodyMedium }}>
+                      Add manually
                     </Text>
                   </View>
                 </PressableScale>
@@ -113,139 +102,139 @@ export default function CardsScreen() {
           </FadeIn>
         ) : (
           <>
-            <FadeIn delay={40}>
-              <View
-                style={[
-                  styles.search,
-                  Shadow.card,
-                  {
-                    backgroundColor: colors.backgroundElevated,
-                    shadowColor: colors.shadow,
-                  },
-                ]}
+            <View style={styles.quickRow}>
+              <PressableScale
+                accessibilityLabel="Scan a card"
+                onPress={() => router.push('/scan')}
+                style={styles.quickHit}
               >
-                <MaterialCommunityIcons name="magnify" size={20} color={colors.textMuted} />
-                <TextInput
-                  value={query}
-                  onChangeText={setQuery}
-                  placeholder="Search cards or stores"
-                  placeholderTextColor={colors.textMuted}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  clearButtonMode="while-editing"
-                  style={[
-                    styles.searchInput,
-                    { color: colors.text, fontFamily: Fonts.body },
-                  ]}
-                  accessibilityLabel="Search cards"
-                />
-                {hasQuery ? (
-                  <Pressable
-                    onPress={() => setQuery('')}
-                    hitSlop={8}
-                    accessibilityRole="button"
-                    accessibilityLabel="Clear search"
-                  >
-                    <MaterialCommunityIcons
-                      name="close-circle"
-                      size={18}
-                      color={colors.textMuted}
-                    />
-                  </Pressable>
-                ) : null}
-              </View>
-            </FadeIn>
-
-            <View style={styles.sectionRow}>
-              <Text
-                style={[styles.sectionTitle, { color: colors.text, fontFamily: Fonts.displayBold }]}
-              >
-                {hasQuery ? 'Results' : 'Your cards'}
-              </Text>
+                <View style={[styles.quickBtn, { backgroundColor: colors.accentSoft }]}>
+                  <MaterialCommunityIcons name="barcode-scan" size={20} color={colors.accent} />
+                  <Text style={{ color: colors.accent, fontFamily: Fonts.bodyBold, fontSize: 13 }}>
+                    Scan
+                  </Text>
+                </View>
+              </PressableScale>
+              {recent ? (
+                <PressableScale
+                  accessibilityLabel={`Present ${recent.title} at checkout`}
+                  onPress={() => router.push(`/card/${recent.id}/present`)}
+                  style={styles.quickHit}
+                >
+                  <View style={[styles.quickBtn, { backgroundColor: colors.accent }]}>
+                    <MaterialCommunityIcons name="barcode" size={20} color="#FFF" />
+                    <Text style={{ color: '#FFF', fontFamily: Fonts.bodyBold, fontSize: 13 }}>
+                      Present at checkout
+                    </Text>
+                  </View>
+                </PressableScale>
+              ) : null}
             </View>
 
-            {filtered.length === 0 ? (
-              <Text style={[styles.noResults, { color: colors.textMuted, fontFamily: Fonts.body }]}>
-                No matches. Try another name or code.
-              </Text>
-            ) : (
-              <FlatList
-                data={filtered}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.list}
-                ItemSeparatorComponent={() => <View style={{ height: Spacing.md }} />}
-                renderItem={({ item, index }) => <CardTile card={item} index={index} />}
-                onRefresh={() => void refresh()}
-                refreshing={loading}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-                initialNumToRender={8}
-                maxToRenderPerBatch={8}
-                windowSize={7}
-                removeClippedSubviews
-              />
-            )}
+            {recent ? (
+              <View style={styles.section}>
+                <Text style={[styles.sectionLabel, { color: colors.textMuted, fontFamily: Fonts.bodyMedium }]}>
+                  Ready now
+                </Text>
+                <FeaturedCard
+                  card={recent}
+                  catalogueNo={catalogueIndex(cards, recent.id)}
+                />
+              </View>
+            ) : null}
+
+            {favorites.length > 0 ? (
+              <View style={styles.section}>
+                <Text style={[styles.sectionLabel, { color: colors.textMuted, fontFamily: Fonts.bodyMedium }]}>
+                  Favorites
+                </Text>
+                <View style={styles.stack}>
+                  {favorites.map((card, index) => (
+                    <CardTile
+                      key={card.id}
+                      card={card}
+                      index={index}
+                      catalogueNo={catalogueIndex(cards, card.id)}
+                    />
+                  ))}
+                </View>
+              </View>
+            ) : null}
+
+            {added.length > 0 ? (
+              <View style={styles.section}>
+                <Text style={[styles.sectionLabel, { color: colors.textMuted, fontFamily: Fonts.bodyMedium }]}>
+                  Recently added
+                </Text>
+                <View style={styles.stack}>
+                  {added.map((card, index) => (
+                    <CardTile
+                      key={card.id}
+                      card={card}
+                      index={index}
+                      catalogueNo={catalogueIndex(cards, card.id)}
+                    />
+                  ))}
+                </View>
+              </View>
+            ) : null}
           </>
         )}
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   sheet: {
-    flex: 1,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.sm,
-  },
-  search: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    minHeight: 52,
-    borderRadius: Radius.full,
-    paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.xl,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    paddingVertical: 12,
-  },
-  sectionRow: {
-    marginBottom: Spacing.md,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    letterSpacing: -0.3,
+    paddingBottom: 140,
+    gap: Spacing.lg,
   },
   center: {
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingTop: 40,
+  },
+  quickRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  quickHit: {
     flex: 1,
+  },
+  quickBtn: {
+    minHeight: 48,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.md,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+  },
+  section: {
     gap: Spacing.md,
-    paddingBottom: 120,
+  },
+  sectionLabel: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  stack: {
+    gap: Spacing.md,
   },
   emptyCard: {
-    borderRadius: Radius.xl,
+    borderRadius: Radius.lg,
     padding: Spacing.xl,
     gap: Spacing.md,
   },
-  emptyIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: Radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   emptyTitle: {
-    fontSize: 22,
-    letterSpacing: -0.3,
+    fontSize: 24,
+    letterSpacing: -0.5,
   },
   emptyBody: {
     fontSize: 15,
     lineHeight: 22,
-    maxWidth: 280,
   },
   emptyActions: {
     flexDirection: 'row',
@@ -254,20 +243,17 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   primaryCta: {
-    borderRadius: Radius.full,
+    borderRadius: Radius.sm,
     paddingHorizontal: Spacing.xl,
     paddingVertical: 14,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   secondaryCta: {
-    borderRadius: Radius.full,
+    borderRadius: Radius.sm,
     paddingHorizontal: Spacing.xl,
     paddingVertical: 14,
-  },
-  noResults: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  list: {
-    paddingBottom: 140,
+    minHeight: 44,
+    justifyContent: 'center',
   },
 });

@@ -3,18 +3,20 @@ import * as React from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { CurveHero } from '@/components/ui/curve-hero';
+import { GalleryHeader } from '@/components/ui/gallery-header';
 import { IconButton } from '@/components/ui/icon-button';
 import { Screen } from '@/components/ui/screen';
 import { TextField } from '@/components/ui/text-field';
 import { useCards } from '@/data/store/cards-context';
 import { guessBarcodeFormat } from '@/domain/card';
 import { Spacing } from '@/constants/theme';
+import { useSafeBack } from '@/hooks/use-safe-back';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function NewCardScreen() {
   const colors = useTheme();
   const router = useRouter();
+  const goBack = useSafeBack('/add');
   const { addCard } = useCards();
   const [title, setTitle] = React.useState('');
   const [storeName, setStoreName] = React.useState('');
@@ -51,12 +53,10 @@ export default function NewCardScreen() {
 
   return (
     <Screen scroll padded={false} edges={['left', 'right']}>
-      <CurveHero
-        eyebrow="New card"
+      <GalleryHeader
         title="Manual entry"
         subtitle="Handy when scanning is awkward, or when you want to paste a code."
-        height={170}
-        right={<IconButton name="close" tone="secondary" onPress={() => router.back()} />}
+        right={<IconButton name="close" tone="secondary" onPress={goBack} />}
       />
 
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
@@ -97,7 +97,7 @@ export default function NewCardScreen() {
             onPress={() => void onSave()}
             disabled={saving}
           />
-          <Button label="Cancel" variant="ghost" onPress={() => router.back()} />
+          <Button label="Cancel" variant="ghost" onPress={goBack} />
         </View>
       </View>
     </Screen>

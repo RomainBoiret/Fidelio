@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { InteractionManager } from 'react-native';
 
+import { DEMO_CARDS } from '@/data/local/demo-cards';
 import * as cardsRepo from '@/data/local/cards-repository';
 import type {
   CreateLoyaltyCardInput,
@@ -20,6 +21,8 @@ type CardsContextValue = {
   ) => Promise<LoyaltyCard | null>;
   removeCard: (id: string) => Promise<void>;
   getCardById: (id: string) => LoyaltyCard | undefined;
+  toggleFavorite: (id: string) => Promise<void>;
+  markOpened: (id: string) => Promise<void>;
 };
 
 const CardsContext = React.createContext<CardsContextValue | null>(null);
@@ -28,12 +31,23 @@ export function CardsProvider({ children }: { children: React.ReactNode }) {
   const [cards, setCards] = React.useState<LoyaltyCard[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const seededRef = React.useRef(false);
 
   const refresh = React.useCallback(async () => {
     try {
       setError(null);
       await cardsRepo.ensureReady();
-      const next = await cardsRepo.listCards();
+      let next = await cardsRepo.listCards();
+
+      // Dev-only: seed a realistic vault so the signature ticket UI is visible.
+      if (__DEV__ && !seededRef.current && next.length === 0) {
+        seededRef.current = true;
+        for (const demo of DEMO_CARDS) {
+          await cardsRepo.createCard(demo);
+        }
+        next = await cardsRepo.listCards();
+      }
+
       setCards(next);
     } catch (err) {
       setError(
@@ -45,7 +59,6 @@ export function CardsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   React.useEffect(() => {
-    // Let the first frame paint before touching SQLite.
     const task = InteractionManager.runAfterInteractions(() => {
       void refresh();
     });
@@ -81,6 +94,22 @@ export function CardsProvider({ children }: { children: React.ReactNode }) {
     [cards],
   );
 
+  const toggleFavorite = React.useCallback(
+    async (id: string) => {
+      const card = cards.find((c) => c.id === id);
+      if (!card) return;
+      await editCard(id, { isFavorite: !card.isFavorite });
+    },
+    [cards, editCard],
+  );
+
+  const markOpened = React.useCallback(
+    async (id: string) => {
+      await editCard(id, { lastOpenedAt: new Date().toISOString() });
+    },
+    [editCard],
+  );
+
   const value = React.useMemo(
     () => ({
       cards,
@@ -91,8 +120,21 @@ export function CardsProvider({ children }: { children: React.ReactNode }) {
       editCard,
       removeCard,
       getCardById,
+      toggleFavorite,
+      markOpened,
     }),
-    [cards, loading, error, refresh, addCard, editCard, removeCard, getCardById],
+    [
+      cards,
+      loading,
+      error,
+      refresh,
+      addCard,
+      editCard,
+      removeCard,
+      getCardById,
+      toggleFavorite,
+      markOpened,
+    ],
   );
 
   return (

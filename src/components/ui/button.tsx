@@ -8,7 +8,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -33,7 +33,7 @@ export function Button({
     variant === 'primary'
       ? colors.accent
       : variant === 'secondary'
-        ? colors.pastelBlue
+        ? colors.surface
         : variant === 'danger'
           ? colors.danger
           : 'transparent';
@@ -41,9 +41,7 @@ export function Button({
   const textColor =
     variant === 'primary' || variant === 'danger'
       ? '#FFFFFF'
-      : variant === 'secondary'
-        ? colors.accent
-        : colors.text;
+      : colors.ink;
 
   return (
     <Pressable
@@ -54,12 +52,10 @@ export function Button({
       style={({ pressed }) =>
         StyleSheet.flatten([
           styles.base,
-          variant === 'primary' ? Shadow.card : null,
           {
             backgroundColor: background,
             borderColor: variant === 'ghost' ? colors.borderStrong : 'transparent',
             borderWidth: variant === 'ghost' ? 1 : 0,
-            shadowColor: colors.shadow,
             opacity: disabled ? 0.45 : pressed ? 0.92 : 1,
             transform: [{ scale: pressed && !disabled ? 0.98 : 1 }],
           },
@@ -77,14 +73,14 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 54,
-    borderRadius: Radius.full,
+    minHeight: 48,
+    borderRadius: Radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     letterSpacing: -0.1,
   },
 });

@@ -3,14 +3,16 @@ import * as React from 'react';
 import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { CurveHero } from '@/components/ui/curve-hero';
+import { GalleryHeader } from '@/components/ui/gallery-header';
 import { IconButton } from '@/components/ui/icon-button';
 import { Screen } from '@/components/ui/screen';
 import { SoftCard } from '@/components/ui/soft-card';
 import { TextField } from '@/components/ui/text-field';
 import { useCards } from '@/data/store/cards-context';
 import { formatBarcodeLabel } from '@/domain/card';
+import { collectionLabel, catalogueIndex } from '@/domain/gallery';
 import { Fonts, Spacing } from '@/constants/theme';
+import { useSafeBack } from '@/hooks/use-safe-back';
 import { useTheme } from '@/hooks/use-theme';
 
 function paramId(value: string | string[] | undefined): string | undefined {
@@ -31,8 +33,10 @@ export default function CardDetailScreen() {
   const id = paramId(params.id);
   const colors = useTheme();
   const router = useRouter();
-  const { getCardById, editCard, removeCard } = useCards();
+  const goBack = useSafeBack('/');
+  const { cards, getCardById, editCard, removeCard } = useCards();
   const card = id ? getCardById(id) : undefined;
+  const catalogueNo = card ? catalogueIndex(cards, card.id) : 1;
 
   const [title, setTitle] = React.useState(card?.title ?? '');
   const [storeName, setStoreName] = React.useState(card?.storeName ?? '');
@@ -55,7 +59,7 @@ export default function CardDetailScreen() {
       return;
     }
 
-    const nextTitle = title.trim() || 'Scanned card';
+    const nextTitle = title.trim() || 'Loyalty card';
     const nextStore = storeName.trim() || 'Store';
 
     setSaving(true);
@@ -126,19 +130,18 @@ export default function CardDetailScreen() {
         <Text style={{ color: colors.text, fontFamily: Fonts.display }}>
           Card not found
         </Text>
-        <Button label="Back" variant="secondary" onPress={() => router.back()} />
+        <Button label="Back" variant="secondary" onPress={goBack} />
       </Screen>
     );
   }
 
   return (
     <Screen scroll padded={false} edges={['left', 'right']}>
-      <CurveHero
-        eyebrow={formatBarcodeLabel(card.codeFormat)}
+      <GalleryHeader
         title={title || card.title}
-        subtitle={storeName || card.storeName}
-        height={180}
-        right={<IconButton name="close" tone="secondary" onPress={() => router.back()} />}
+        subtitle={`${storeName || card.storeName} · ${formatBarcodeLabel(card.codeFormat)} · ${collectionLabel(catalogueNo)}`}
+        pieceCount={cards.length}
+        right={<IconButton name="close" tone="secondary" onPress={goBack} />}
       />
 
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
@@ -155,7 +158,7 @@ export default function CardDetailScreen() {
             {card.codeValue}
           </Text>
           <Button
-            label="Show at checkout"
+            label="Present at checkout"
             onPress={() => router.push(`/card/${card.id}/present`)}
             style={{ marginTop: Spacing.md }}
           />

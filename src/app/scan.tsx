@@ -6,23 +6,27 @@ import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { ScanCameraPanel } from '@/components/scan/scan-camera-panel';
 import { Button } from '@/components/ui/button';
-import { CurveHero } from '@/components/ui/curve-hero';
+import { GalleryHeader } from '@/components/ui/gallery-header';
+import { IconButton } from '@/components/ui/icon-button';
 import { Screen } from '@/components/ui/screen';
 import { SoftCard } from '@/components/ui/soft-card';
 import { useCards } from '@/data/store/cards-context';
+import { formatCollectionNo } from '@/domain/gallery';
 import { labelsFromScan, LOYALTY_BARCODE_TYPES, mapBarcodeType } from '@/domain/scan';
 import { Fonts, Spacing } from '@/constants/theme';
+import { useSafeBack } from '@/hooks/use-safe-back';
 import { useScanPermissions } from '@/hooks/use-scan-permissions';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function ScanScreen() {
   const colors = useTheme();
   const router = useRouter();
+  const goBack = useSafeBack('/add');
   const isFocused = useIsFocused();
   const { cards, addCard } = useCards();
   const [permission, requestPermission] = useScanPermissions();
   const [locked, setLocked] = React.useState(false);
-  const [status, setStatus] = React.useState('Align the barcode in the band');
+  const [status, setStatus] = React.useState('Align the barcode in the frame');
   const [systemScanning, setSystemScanning] = React.useState(false);
   const lockedRef = React.useRef(false);
 
@@ -34,7 +38,7 @@ export default function ScanScreen() {
     if (!isFocused) {
       lockedRef.current = false;
       setLocked(false);
-      setStatus('Align the barcode in the band');
+      setStatus('Align the barcode in the frame');
       setSystemScanning(false);
       if (Platform.OS === 'ios') {
         void CameraView.dismissScanner().catch(() => undefined);
@@ -57,8 +61,8 @@ export default function ScanScreen() {
         const code = data.trim();
         const existing = cards.find((c) => c.codeValue === code);
         if (existing) {
-          setStatus('Card already saved');
-          router.push(`/card/${existing.id}`);
+          setStatus('Already in your gallery');
+          router.replace(`/card/${existing.id}`);
           return;
         }
 
@@ -69,17 +73,18 @@ export default function ScanScreen() {
           codeValue: code,
           codeFormat: mapBarcodeType(type),
         });
-        setStatus('Card created');
-        router.push(`/card/${card.id}`);
+        const nextNo = formatCollectionNo(cards.length + 1);
+        setStatus(`Card added · No. ${nextNo}`);
+        router.replace(`/card/${card.id}`);
       } catch {
-        setStatus('Failed - try again');
+        setStatus('Failed — try again');
         lockedRef.current = false;
         setLocked(false);
       } finally {
         setTimeout(() => {
           lockedRef.current = false;
           setLocked(false);
-          setStatus('Align the barcode in the band');
+          setStatus('Align the barcode in the frame');
           setSystemScanning(false);
         }, 1600);
       }
@@ -112,22 +117,25 @@ export default function ScanScreen() {
     }
   }
 
+  const close = (
+    <IconButton name="close" tone="secondary" onPress={goBack} accessibilityLabel="Close" />
+  );
+
   if (!permission) {
     return (
-      <Screen withTabInset padded={false} edges={['left', 'right']}>
-        <CurveHero eyebrow="Scan" title="Getting ready…" height={160} />
+      <Screen padded={false} edges={['left', 'right']}>
+        <GalleryHeader title="Scan" subtitle="Getting the camera ready…" right={close} />
       </Screen>
     );
   }
 
   if (!permission.granted) {
     return (
-      <Screen withTabInset padded={false} edges={['left', 'right']}>
-        <CurveHero
-          eyebrow="Camera"
+      <Screen padded={false} edges={['left', 'right']}>
+        <GalleryHeader
           title="Allow scanning"
-          subtitle="Fidelio reads QR and barcodes to create your card."
-          height={180}
+          subtitle="Fidelio reads QR and barcodes to add a card."
+          right={close}
         />
         <View style={[styles.sheet, { backgroundColor: colors.background }]}>
           <Button label="Allow camera" onPress={() => void requestPermission()} />
@@ -144,12 +152,11 @@ export default function ScanScreen() {
   }
 
   return (
-    <Screen withTabInset padded={false} edges={['left', 'right']}>
-      <CurveHero
-        eyebrow="Quick scan"
-        title="Aim at the barcode"
-        subtitle="The black strip at the bottom of the card — not the QR."
-        height={170}
+    <Screen padded={false} edges={['left', 'right']}>
+      <GalleryHeader
+        title="Scan a card"
+        subtitle="Frame the barcode strip, then confirm the details."
+        right={close}
       />
 
       <View style={[styles.sheet, { backgroundColor: colors.background }]}>
@@ -166,7 +173,7 @@ export default function ScanScreen() {
             Tip
           </Text>
           <Text style={[styles.hintBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
-            Place the barcode strip in the frame, flat, about 10–15 cm away, without glare.
+            Hold the barcode flat, about 10–15 cm away, without glare.
           </Text>
 
           {canUseSystemScanner ? (
@@ -178,7 +185,7 @@ export default function ScanScreen() {
           ) : null}
 
           <Button
-            label="Manual entry"
+            label="Enter manually instead"
             variant="ghost"
             onPress={() => router.push('/card/new')}
             style={{ marginTop: Spacing.sm }}
@@ -193,13 +200,13 @@ const styles = StyleSheet.create({
   sheet: {
     paddingHorizontal: Spacing.xl,
     gap: Spacing.lg,
-    paddingBottom: 140,
+    paddingBottom: 40,
   },
   hintCard: {
     gap: 4,
   },
   hintTitle: {
-    fontSize: 18,
+    fontSize: 20,
   },
   hintBody: {
     fontSize: 14,
