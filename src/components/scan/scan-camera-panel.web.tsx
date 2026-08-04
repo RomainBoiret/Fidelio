@@ -1,12 +1,14 @@
 import * as React from 'react';
 import { createElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 
+import type { ScanMode } from '@/domain/scan';
 import { Fonts, Spacing } from '@/constants/theme';
 
 type Props = {
   active: boolean;
   locked: boolean;
+  mode: ScanMode;
   accentColor: string;
   statusLabel?: string;
   onBarcode: (payload: { data: string; type: string }) => void;
@@ -28,8 +30,7 @@ const WEB_TO_EXPO: Record<string, string> = {
   upc_e: 'upc_e',
 };
 
-/** 1D first - that is the checkout code on loyalty cards. */
-const PREFERRED_FORMATS = [
+const BARCODE_FORMATS = [
   'code_128',
   'code_39',
   'code_93',
@@ -40,8 +41,12 @@ const PREFERRED_FORMATS = [
   'codabar',
   'itf',
   'pdf417',
-  'qr_code',
 ];
+
+const QR_FORMATS = ['qr_code', 'aztec', 'data_matrix'];
+
+const WINDOW = Dimensions.get('window');
+const QR_SIZE = Math.min(WINDOW.width - 72, 280);
 
 type Detector = {
   detect: (source: CanvasImageSource) => Promise<
@@ -49,10 +54,23 @@ type Detector = {
   >;
 };
 
-function pickBestHit(results: Array<{ format: string; rawValue: string }>) {
+function formatsForMode(mode: ScanMode) {
+  return mode === 'qr' ? QR_FORMATS : BARCODE_FORMATS;
+}
+
+function pickBestHit(
+  results: Array<{ format: string; rawValue: string }>,
+  mode: ScanMode,
+) {
   const valid = results.filter((r) => r.rawValue?.trim());
   if (valid.length === 0) return null;
-  // Prefer linear barcodes over QR when both are visible on the card.
+  if (mode === 'qr') {
+    return (
+      valid.find((r) => r.format === 'qr_code') ??
+      valid.find((r) => QR_FORMATS.includes(r.format)) ??
+      valid[0]!
+    );
+  }
   return (
     valid.find((r) => r.format !== 'qr_code') ??
     valid[0]!
@@ -60,14 +78,14 @@ function pickBestHit(results: Array<{ format: string; rawValue: string }>) {
 }
 
 /**
- * Web scanner tuned for loyalty **barcodes** (Code128 / EAN…), not QR.
- * Crops a wide horizontal band - matches 1D barcode geometry.
+ * Web scanner — square crop for QR, wide band for 1D barcodes.
  */
 export function ScanCameraPanel({
   active,
   locked,
+  mode,
   accentColor,
-  statusLabel = 'Align the barcode in the frame',
+  statusLabel,
   onBarcode,
 }: Props) {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -75,9 +93,13 @@ export function ScanCameraPanel({
   const streamRef = React.useRef<MediaStream | null>(null);
   const lockedRef = React.useRef(locked);
   const onBarcodeRef = React.useRef(onBarcode);
+  const modeRef = React.useRef(mode);
   const [ready, setReady] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [frames, setFrames] = React.useState(0);
+  const isQr = mode === 'qr';
+  const defaultStatus = isQr
+    ? 'Center the QR code in the square'
+    : 'Align the barcode strip in the frame';
 
   React.useEffect(() => {
     lockedRef.current = locked;
@@ -88,16 +110,18 @@ export function ScanCameraPanel({
   }, [onBarcode]);
 
   React.useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  React.useEffect(() => {
     if (!active) {
       stopStream();
       setReady(false);
-      setFrames(0);
       return;
     }
 
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    let frameCount = 0;
 
     async function start() {
       try {
@@ -133,12 +157,13 @@ export function ScanCameraPanel({
         await video.play();
         setReady(true);
 
-        const detector = await createDetector();
+        const detector = await createDetector(modeRef.current);
 
         const tick = async () => {
           if (cancelled) return;
           const v = videoRef.current;
           const canvas = canvasRef.current;
+          const currentMode = modeRef.current;
 
           try {
             if (
@@ -148,46 +173,51 @@ export function ScanCameraPanel({
               v.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
               v.videoWidth > 0
             ) {
-              // Wide horizontal crop (~28% height, centered) - ideal for 1D barcodes.
-              const bandH = Math.floor(v.videoHeight * 0.28);
-              const bandY = Math.floor((v.videoHeight - bandH) / 2);
-              const scale = 1.6;
-              canvas.width = Math.floor(v.videoWidth * scale);
-              canvas.height = Math.floor(bandH * scale);
-
               const ctx = canvas.getContext('2d', { willReadFrequently: true });
               if (ctx) {
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(
-                  v,
-                  0,
-                  bandY,
-                  v.videoWidth,
-                  bandH,
-                  0,
-                  0,
-                  canvas.width,
-                  canvas.height,
-                );
+                if (currentMode === 'qr') {
+                  const side = Math.floor(Math.min(v.videoWidth, v.videoHeight) * 0.62);
+                  const sx = Math.floor((v.videoWidth - side) / 2);
+                  const sy = Math.floor((v.videoHeight - side) / 2);
+                  const scale = 1.4;
+                  canvas.width = Math.floor(side * scale);
+                  canvas.height = Math.floor(side * scale);
+                  ctx.imageSmoothingEnabled = true;
+                  ctx.drawImage(v, sx, sy, side, side, 0, 0, canvas.width, canvas.height);
+                } else {
+                  const bandH = Math.floor(v.videoHeight * 0.28);
+                  const bandY = Math.floor((v.videoHeight - bandH) / 2);
+                  const scale = 1.6;
+                  canvas.width = Math.floor(v.videoWidth * scale);
+                  canvas.height = Math.floor(bandH * scale);
+                  ctx.imageSmoothingEnabled = false;
+                  ctx.drawImage(
+                    v,
+                    0,
+                    bandY,
+                    v.videoWidth,
+                    bandH,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height,
+                  );
 
-                // Mild contrast boost helps Code128 on plastic cards.
-                const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = image.data;
-                for (let i = 0; i < data.length; i += 4) {
-                  const gray =
-                    data[i]! * 0.299 + data[i + 1]! * 0.587 + data[i + 2]! * 0.114;
-                  const boosted = gray < 128 ? gray * 0.75 : Math.min(255, gray * 1.25);
-                  data[i] = boosted;
-                  data[i + 1] = boosted;
-                  data[i + 2] = boosted;
+                  const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                  const data = image.data;
+                  for (let i = 0; i < data.length; i += 4) {
+                    const gray =
+                      data[i]! * 0.299 + data[i + 1]! * 0.587 + data[i + 2]! * 0.114;
+                    const boosted = gray < 128 ? gray * 0.75 : Math.min(255, gray * 1.25);
+                    data[i] = boosted;
+                    data[i + 1] = boosted;
+                    data[i + 2] = boosted;
+                  }
+                  ctx.putImageData(image, 0, 0);
                 }
-                ctx.putImageData(image, 0, 0);
 
                 const results = await detector.detect(canvas);
-                frameCount += 1;
-                if (frameCount % 6 === 0) setFrames(frameCount);
-
-                const hit = pickBestHit(results);
+                const hit = pickBestHit(results, currentMode);
                 if (hit) {
                   onBarcodeRef.current({
                     data: hit.rawValue.trim(),
@@ -224,7 +254,7 @@ export function ScanCameraPanel({
       if (timer) clearTimeout(timer);
       stopStream();
     };
-  }, [active]);
+  }, [active, mode]);
 
   function stopStream() {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -233,7 +263,7 @@ export function ScanCameraPanel({
   }
 
   return (
-    <View style={styles.viewport}>
+    <View style={styles.root}>
       {createElement('video', {
         ref: videoRef,
         autoPlay: true,
@@ -255,24 +285,46 @@ export function ScanCameraPanel({
         style: { display: 'none' },
       })}
 
-      {/* Wide barcode guide */}
-      <View style={[styles.dimTop, styles.noPointer]} />
-      <View style={[styles.dimBottom, styles.noPointer]} />
-      <View style={[styles.band, styles.noPointer, { borderColor: accentColor }]}>
-        <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
-        <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
-        <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
-        <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
-      </View>
+      {isQr ? (
+        <View style={[styles.finderLayer, styles.noPointer]} pointerEvents="none">
+          <View style={styles.dimFlex} />
+          <View style={styles.qrMidRow}>
+            <View style={styles.dimFlex} />
+            <View style={[styles.qrFrame, { width: QR_SIZE, height: QR_SIZE }]}>
+              <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
+              <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
+              <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
+              <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
+            </View>
+            <View style={styles.dimFlex} />
+          </View>
+          <View style={styles.dimFlex} />
+        </View>
+      ) : (
+        <View style={[styles.finderLayer, styles.noPointer]} pointerEvents="none">
+          <View style={[styles.dimFlex, { flex: 1.15 }]} />
+          <View style={styles.bandRow}>
+            <View style={styles.dimSide} />
+            <View style={[styles.band, { borderColor: accentColor }]}>
+              <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
+              <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
+              <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
+              <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
+            </View>
+            <View style={styles.dimSide} />
+          </View>
+          <View style={[styles.dimFlex, { flex: 1.15 }]} />
+        </View>
+      )}
 
-      <View style={[styles.overlayBottom, styles.noPointer]}>
+      <View style={[styles.footer, styles.noPointer]}>
         <Text style={[styles.status, { fontFamily: Fonts.bodyMedium }]}>
           {error
             ? error
             : locked
               ? 'Code captured…'
               : ready
-                ? `${statusLabel}${frames > 0 ? ` · ${frames}` : ''}`
+                ? (statusLabel ?? defaultStatus)
                 : 'Opening camera…'}
         </Text>
       </View>
@@ -280,7 +332,8 @@ export function ScanCameraPanel({
   );
 }
 
-async function createDetector(): Promise<Detector> {
+async function createDetector(mode: ScanMode): Promise<Detector> {
+  const preferred = formatsForMode(mode);
   const Native = (
     globalThis as unknown as {
       BarcodeDetector?: {
@@ -291,15 +344,15 @@ async function createDetector(): Promise<Detector> {
   ).BarcodeDetector;
 
   if (Native) {
-    let formats = PREFERRED_FORMATS;
+    let formats = preferred;
     try {
       if (typeof Native.getSupportedFormats === 'function') {
         const supported = await Native.getSupportedFormats();
-        formats = PREFERRED_FORMATS.filter((f) => supported.includes(f));
+        formats = preferred.filter((f) => supported.includes(f));
       }
-      if (formats.length === 0) formats = ['code_128', 'ean_13'];
+      if (formats.length === 0) formats = mode === 'qr' ? ['qr_code'] : ['code_128', 'ean_13'];
     } catch {
-      formats = ['code_128', 'code_39', 'ean_13'];
+      formats = preferred;
     }
     return new Native({ formats });
   }
@@ -308,63 +361,66 @@ async function createDetector(): Promise<Detector> {
   const Fallback = mod.BarcodeDetector as unknown as new (opts: {
     formats: string[];
   }) => Detector;
-  return new Fallback({ formats: PREFERRED_FORMATS });
+  return new Fallback({ formats: preferred });
 }
 
 const styles = StyleSheet.create({
-  viewport: {
-    height: 460,
-    overflow: 'hidden',
-    borderRadius: 20,
-    backgroundColor: '#081516',
+  root: {
+    flex: 1,
+    backgroundColor: '#0A0A0A',
     position: 'relative',
   },
-  dimTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '36%',
-    backgroundColor: 'rgba(8, 21, 22, 0.45)',
+  finderLayer: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
   },
-  dimBottom: {
-    position: 'absolute',
-    bottom: 52,
-    left: 0,
-    right: 0,
-    height: '28%',
-    backgroundColor: 'rgba(8, 21, 22, 0.45)',
+  dimFlex: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.52)',
+  },
+  qrMidRow: {
+    flexDirection: 'row',
+    height: QR_SIZE,
+  },
+  qrFrame: {
+    backgroundColor: 'transparent',
+  },
+  bandRow: {
+    height: 118,
+    flexDirection: 'row',
+  },
+  dimSide: {
+    width: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.52)',
   },
   band: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    top: '36%',
-    height: '28%',
-    borderWidth: 2,
-    borderRadius: 12,
+    flex: 1,
+    borderWidth: 1.5,
+    borderRadius: 10,
+    backgroundColor: 'transparent',
   },
   corner: {
     position: 'absolute',
-    width: 22,
-    height: 22,
-    borderWidth: 3,
+    width: 28,
+    height: 28,
+    borderWidth: 4,
   },
-  tl: { top: -1, left: -1, borderRightWidth: 0, borderBottomWidth: 0 },
-  tr: { top: -1, right: -1, borderLeftWidth: 0, borderBottomWidth: 0 },
-  bl: { bottom: -1, left: -1, borderRightWidth: 0, borderTopWidth: 0 },
-  br: { bottom: -1, right: -1, borderLeftWidth: 0, borderTopWidth: 0 },
-  overlayBottom: {
+  tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 4 },
+  tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 4 },
+  bl: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 4 },
+  br: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 4 },
+  footer: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    padding: Spacing.lg,
-    backgroundColor: 'rgba(8, 21, 22, 0.55)',
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.xl,
+    paddingTop: Spacing.md,
   },
   status: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 15,
   },
   noPointer: {
     pointerEvents: 'none',

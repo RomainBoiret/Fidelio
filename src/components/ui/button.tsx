@@ -33,7 +33,7 @@ export function Button({
     variant === 'primary'
       ? colors.accent
       : variant === 'secondary'
-        ? colors.surface
+        ? 'rgba(255,255,255,0.45)'
         : variant === 'danger'
           ? colors.danger
           : 'transparent';
@@ -54,8 +54,11 @@ export function Button({
           styles.base,
           {
             backgroundColor: background,
-            borderColor: variant === 'ghost' ? colors.borderStrong : 'transparent',
-            borderWidth: variant === 'ghost' ? 1 : 0,
+            borderColor:
+              variant === 'ghost' || variant === 'secondary'
+                ? 'rgba(255,255,255,0.65)'
+                : 'transparent',
+            borderWidth: variant === 'ghost' || variant === 'secondary' ? StyleSheet.hairlineWidth : 0,
             opacity: disabled ? 0.45 : pressed ? 0.92 : 1,
             transform: [{ scale: pressed && !disabled ? 0.98 : 1 }],
           },
@@ -73,8 +76,8 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 48,
-    borderRadius: Radius.sm,
+    minHeight: 52,
+    borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,

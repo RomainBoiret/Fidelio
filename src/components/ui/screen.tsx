@@ -2,14 +2,15 @@ import * as React from 'react';
 import { ScrollView, StyleSheet, View, type ViewProps } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = ViewProps & {
   children: React.ReactNode;
   scroll?: boolean;
   padded?: boolean;
-  withTabInset?: boolean;
+  /** Let parent atmosphere show through. */
+  transparent?: boolean;
   /** Override safe-area edges. Use `['left','right']` under GalleryHeader so the masthead bleeds under status bar. */
   edges?: Edge[];
 };
@@ -18,15 +19,12 @@ export function Screen({
   children,
   scroll = false,
   padded = true,
-  withTabInset = false,
+  transparent = false,
   edges = ['top', 'left', 'right'],
   style,
   ...rest
 }: Props) {
   const colors = useTheme();
-  const paddingBottom = withTabInset
-    ? BottomTabInset + Spacing.lg
-    : Spacing.xl;
 
   const content = (
     <View
@@ -34,7 +32,7 @@ export function Screen({
         styles.inner,
         scroll ? styles.innerScroll : styles.innerFill,
         padded && styles.padded,
-        { paddingBottom },
+        { paddingBottom: Spacing.xl },
         style,
       ]}
       {...rest}
@@ -45,7 +43,10 @@ export function Screen({
 
   return (
     <SafeAreaView
-      style={[styles.safe, { backgroundColor: colors.background }]}
+      style={[
+        styles.safe,
+        { backgroundColor: transparent ? 'transparent' : colors.background },
+      ]}
       edges={edges}
     >
       {scroll ? (

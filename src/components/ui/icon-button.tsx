@@ -1,91 +1,45 @@
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import * as React from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  type PressableProps,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { GlassSurface } from '@/components/ui/glass-surface';
+import { PressableScale } from '@/components/motion/pressable-scale';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-type Props = PressableProps & {
+type Props = {
   name: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   tone?: 'neutral' | 'accent' | 'secondary';
   size?: number;
   style?: StyleProp<ViewStyle>;
+  onPress?: () => void;
+  accessibilityLabel?: string;
 };
 
+/** Chrome glass icon button. */
 export function IconButton({
   name,
   tone = 'neutral',
   size = 20,
   style,
-  onPressIn,
-  onPressOut,
-  ...rest
+  onPress,
+  accessibilityLabel,
 }: Props) {
   const colors = useTheme();
-  const reduceMotion = useReducedMotion();
-  const scale = useSharedValue(1);
-
-  const background =
-    tone === 'accent'
-      ? colors.backgroundElevated
-      : tone === 'secondary'
-        ? colors.backgroundElevated
-        : colors.backgroundElevated;
-
-  const iconColor =
-    tone === 'accent' ? colors.accent : colors.ink;
-
-  const borderColor =
-    tone === 'accent' ? colors.accent : colors.ink;
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  const iconColor = tone === 'accent' ? colors.accent : colors.ink;
 
   return (
-    <AnimatedPressable
-      accessibilityRole="button"
-      onPressIn={(e) => {
-        if (!reduceMotion) {
-          // eslint-disable-next-line react-hooks/immutability -- shared value write
-          scale.value = withSpring(0.92, { damping: 14, stiffness: 380 });
-        }
-        onPressIn?.(e);
-      }}
-      onPressOut={(e) => {
-        if (!reduceMotion) {
-          // eslint-disable-next-line react-hooks/immutability -- shared value write
-          scale.value = withSpring(1, { damping: 12, stiffness: 220 });
-        }
-        onPressOut?.(e);
-      }}
-      style={[
-        styles.btn,
-        {
-          backgroundColor: background,
-          borderColor,
-        },
-        animatedStyle,
-        style,
-      ]}
-      {...rest}
+    <PressableScale
+      accessibilityLabel={accessibilityLabel}
+      onPress={onPress}
+      style={style}
     >
-      <MaterialCommunityIcons name={name} size={size} color={iconColor} />
-    </AnimatedPressable>
+      <GlassSurface tone="chrome" radius={Radius.md} style={styles.btn}>
+        <View style={styles.inner}>
+          <MaterialCommunityIcons name={name} size={size} color={iconColor} />
+        </View>
+      </GlassSurface>
+    </PressableScale>
   );
 }
 
@@ -93,9 +47,11 @@ const styles = StyleSheet.create({
   btn: {
     width: 44,
     height: 44,
-    borderRadius: Radius.xs,
+  },
+  inner: {
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

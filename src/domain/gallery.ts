@@ -9,23 +9,6 @@ export function collectionLabel(n: number): string {
   return `Collection No. ${formatCollectionNo(n)}`;
 }
 
-export function piecesLabel(count: number): string {
-  if (count === 0) return '0 PIECES';
-  if (count === 1) return '01 PIECE';
-  return `${String(count).padStart(2, '0')} PIECES`;
-}
-
-export function addedYear(iso: string): string {
-  return String(new Date(iso).getFullYear());
-}
-
-export function addedMonthDay(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 export function relativeUseLabel(iso: string): string {
   const then = new Date(iso).getTime();
   const diff = Date.now() - then;

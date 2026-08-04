@@ -9,7 +9,8 @@ import Animated, {
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { GalleryMark } from '@/components/brand/gallery-mark';
-import { Fonts, Motion, Radius, Spacing } from '@/constants/theme';
+import { GlassSurface } from '@/components/ui/glass-surface';
+import { Fonts, FontWeight, Motion, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
@@ -17,15 +18,17 @@ type Props = {
   subtitle?: string;
   pieceCount?: number;
   onAdd?: () => void;
+  onBack?: () => void;
   right?: React.ReactNode;
 };
 
-/** Calm masthead — brand, title, soft count. */
+/** Glass masthead — brand, title, soft count. */
 export function GalleryHeader({
-  title = 'Your Gallery',
-  subtitle = 'Cards ready when you need them.',
+  title = 'Fidelio',
+  subtitle,
   pieceCount = 0,
   onAdd,
+  onBack,
   right,
 }: Props) {
   const colors = useTheme();
@@ -37,7 +40,7 @@ export function GalleryHeader({
       style={[
         styles.wrap,
         {
-          backgroundColor: colors.background,
+          backgroundColor: 'transparent',
           paddingTop: insets.top + Spacing.lg,
         },
       ]}
@@ -52,7 +55,23 @@ export function GalleryHeader({
         }
       >
         <View style={styles.topRow}>
-          <GalleryMark size={34} withWordmark />
+          <View style={styles.brandRow}>
+            {onBack ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+                onPress={onBack}
+                hitSlop={8}
+              >
+                <GlassSurface tone="chrome" radius={Radius.md} style={styles.iconBtn}>
+                  <View style={styles.iconBtnInner}>
+                    <MaterialCommunityIcons name="arrow-left" size={22} color={colors.ink} />
+                  </View>
+                </GlassSurface>
+              </Pressable>
+            ) : null}
+            <GalleryMark size={34} withWordmark />
+          </View>
           {right ??
             (onAdd ? (
               <Pressable
@@ -60,31 +79,42 @@ export function GalleryHeader({
                 accessibilityLabel="Add card"
                 onPress={onAdd}
                 hitSlop={8}
-                style={[
-                  styles.addBtn,
-                  {
-                    backgroundColor: colors.backgroundElevated,
-                    borderColor: colors.border,
-                    minWidth: 44,
-                    minHeight: 44,
-                  },
-                ]}
               >
-                <MaterialCommunityIcons name="plus" size={22} color={colors.ink} />
+                <GlassSurface tone="chrome" radius={Radius.md} style={styles.iconBtn}>
+                  <View style={styles.iconBtnInner}>
+                    <MaterialCommunityIcons name="plus" size={22} color={colors.ink} />
+                  </View>
+                </GlassSurface>
               </Pressable>
             ) : null)}
         </View>
 
         <View style={styles.titleRow}>
           <Text
-            style={[styles.title, { color: colors.ink, fontFamily: Fonts.displayBold }]}
+            style={[
+              styles.title,
+              {
+                color: colors.ink,
+                fontFamily: Fonts.displayBold,
+                fontWeight: FontWeight.heavy,
+              },
+            ]}
             accessibilityRole="header"
           >
             {title}
           </Text>
           {pieceCount > 0 ? (
-            <View style={[styles.countChip, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.countText, { color: colors.textSecondary, fontFamily: Fonts.bodyMedium }]}>
+            <View style={[styles.countChip, { backgroundColor: colors.accentSoft }]}>
+              <Text
+                style={[
+                  styles.countText,
+                  {
+                    color: colors.accentText,
+                    fontFamily: Fonts.bodyMedium,
+                    fontWeight: FontWeight.medium,
+                  },
+                ]}
+              >
                 {String(pieceCount).padStart(2, '0')}
               </Text>
             </View>
@@ -112,11 +142,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: Spacing.xl,
   },
-  addBtn: {
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    flexShrink: 1,
+  },
+  iconBtn: {
     width: 44,
     height: 44,
-    borderWidth: 1,
-    borderRadius: Radius.sm,
+  },
+  iconBtnInner: {
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -127,9 +165,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   title: {
-    fontSize: 30,
-    letterSpacing: -0.7,
-    lineHeight: 36,
+    fontSize: 32,
+    letterSpacing: -0.9,
+    lineHeight: 38,
   },
   countChip: {
     paddingHorizontal: 10,
@@ -143,6 +181,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 15,
     lineHeight: 22,
-    maxWidth: 300,
+    maxWidth: 320,
   },
 });

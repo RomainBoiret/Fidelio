@@ -4,35 +4,57 @@ import {
   type BarcodeType,
 } from 'expo-camera';
 import * as React from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
-import { LOYALTY_BARCODE_TYPES } from '@/domain/scan';
+import {
+  barcodeTypesForMode,
+  type ScanMode,
+} from '@/domain/scan';
 import { Fonts, Spacing } from '@/constants/theme';
 
 type Props = {
   active: boolean;
   locked: boolean;
+  mode: ScanMode;
   accentColor: string;
   statusLabel?: string;
   onBarcode: (payload: { data: string; type: string }) => void;
 };
 
+const WINDOW = Dimensions.get('window');
+const QR_SIZE = Math.min(WINDOW.width - 72, 280);
+
 /**
- * Native camera preview scanner.
- * Keep `onBarcodeScanned` always attached - toggling it off breaks detection.
+ * Native camera scanner — fullscreen, mode-aware viewfinder.
+ * QR → square frame. Barcode → wide horizontal band.
  */
 export function ScanCameraPanel({
   active,
   locked,
+  mode,
   accentColor,
-  statusLabel = 'Align the barcode in the frame',
+  statusLabel,
   onBarcode,
 }: Props) {
+  const insets = useSafeAreaInsets();
   const [torch, setTorch] = React.useState(false);
   const [ready, setReady] = React.useState(false);
   const lockedRef = React.useRef(locked);
   const onBarcodeRef = React.useRef(onBarcode);
+  const types = barcodeTypesForMode(mode);
+  const isQr = mode === 'qr';
+  const defaultStatus = isQr
+    ? 'Center the QR code in the square'
+    : 'Align the barcode strip in the frame';
 
   React.useEffect(() => {
     lockedRef.current = locked;
@@ -58,39 +80,42 @@ export function ScanCameraPanel({
 
   if (!active) {
     return (
-      <View style={[styles.viewport, styles.idle]}>
+      <View style={[styles.root, styles.idle]}>
         <Text style={[styles.idleText, { fontFamily: Fonts.body }]}>Camera paused</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.viewport}>
+    <View style={styles.root}>
       <CameraView
         style={styles.camera}
         facing="back"
         mode="picture"
         enableTorch={torch}
         barcodeScannerSettings={{
-          barcodeTypes: LOYALTY_BARCODE_TYPES as BarcodeType[],
+          barcodeTypes: types as BarcodeType[],
         }}
         onBarcodeScanned={handleScan}
         onCameraReady={() => setReady(true)}
         onMountError={() => setReady(false)}
       />
 
-      <View style={[styles.dimTop, styles.noPointer]} />
-      <View style={[styles.dimBottom, styles.noPointer]} />
-      <View style={[styles.band, styles.noPointer, { borderColor: accentColor }]}>
-        <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
-        <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
-        <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
-        <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
-      </View>
+      {isQr ? (
+        <QrFinder accentColor={accentColor} size={QR_SIZE} />
+      ) : (
+        <BarcodeFinder accentColor={accentColor} />
+      )}
 
-      <View style={[styles.overlayBottom, styles.boxNone]}>
+      <View
+        style={[
+          styles.footer,
+          styles.boxNone,
+          { paddingBottom: Math.max(insets.bottom, Spacing.lg) + Spacing.sm },
+        ]}
+      >
         <Text style={[styles.status, { fontFamily: Fonts.bodyMedium }]}>
-          {locked ? 'Code captured…' : ready ? statusLabel : 'Opening camera…'}
+          {locked ? 'Code captured…' : ready ? (statusLabel ?? defaultStatus) : 'Opening camera…'}
         </Text>
 
         {Platform.OS !== 'web' ? (
@@ -100,7 +125,7 @@ export function ScanCameraPanel({
             onPress={() => setTorch((v) => !v)}
             style={[
               styles.torchBtn,
-              { backgroundColor: torch ? accentColor : 'rgba(0,0,0,0.45)' },
+              { backgroundColor: torch ? accentColor : 'rgba(255,255,255,0.18)' },
             ]}
           >
             <MaterialCommunityIcons
@@ -115,17 +140,51 @@ export function ScanCameraPanel({
   );
 }
 
+function QrFinder({ accentColor, size }: { accentColor: string; size: number }) {
+  return (
+    <View style={[styles.finderLayer, styles.noPointer]} pointerEvents="none">
+      <View style={styles.dimFlex} />
+      <View style={styles.qrMidRow}>
+        <View style={styles.dimFlex} />
+        <View style={[styles.qrFrame, { width: size, height: size }]}>
+          <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
+          <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
+          <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
+          <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
+        </View>
+        <View style={styles.dimFlex} />
+      </View>
+      <View style={styles.dimFlex} />
+    </View>
+  );
+}
+
+function BarcodeFinder({ accentColor }: { accentColor: string }) {
+  return (
+    <View style={[styles.finderLayer, styles.noPointer]} pointerEvents="none">
+      <View style={[styles.dimFlex, { flex: 1.15 }]} />
+      <View style={styles.bandRow}>
+        <View style={styles.dimSide} />
+        <View style={[styles.band, { borderColor: accentColor }]}>
+          <View style={[styles.corner, styles.tl, { borderColor: accentColor }]} />
+          <View style={[styles.corner, styles.tr, { borderColor: accentColor }]} />
+          <View style={[styles.corner, styles.bl, { borderColor: accentColor }]} />
+          <View style={[styles.corner, styles.br, { borderColor: accentColor }]} />
+        </View>
+        <View style={styles.dimSide} />
+      </View>
+      <View style={[styles.dimFlex, { flex: 1.15 }]} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  viewport: {
-    height: 460,
-    backgroundColor: '#081516',
-    overflow: 'hidden',
-    borderRadius: 20,
+  root: {
+    flex: 1,
+    backgroundColor: '#0A0A0A',
   },
   camera: {
     ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
   },
   idle: {
     alignItems: 'center',
@@ -135,62 +194,70 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.7)',
     fontSize: 14,
   },
-  dimTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '36%',
-    backgroundColor: 'rgba(8, 21, 22, 0.45)',
+  finderLayer: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
   },
-  dimBottom: {
-    position: 'absolute',
-    bottom: 56,
-    left: 0,
-    right: 0,
-    height: '28%',
-    backgroundColor: 'rgba(8, 21, 22, 0.45)',
+  dimFlex: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.52)',
+  },
+  qrMidRow: {
+    flexDirection: 'row',
+    height: QR_SIZE,
+  },
+  qrFrame: {
+    backgroundColor: 'transparent',
+  },
+  bandRow: {
+    height: 118,
+    flexDirection: 'row',
+  },
+  dimSide: {
+    width: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.52)',
   },
   band: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    top: '36%',
-    height: '28%',
-    borderWidth: 2,
-    borderRadius: 12,
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.35)',
+    borderRadius: 10,
+    backgroundColor: 'transparent',
   },
   corner: {
     position: 'absolute',
-    width: 22,
-    height: 22,
-    borderWidth: 3,
+    width: 28,
+    height: 28,
+    borderWidth: 4,
   },
-  tl: { top: -1, left: -1, borderRightWidth: 0, borderBottomWidth: 0 },
-  tr: { top: -1, right: -1, borderLeftWidth: 0, borderBottomWidth: 0 },
-  bl: { bottom: -1, left: -1, borderRightWidth: 0, borderTopWidth: 0 },
-  br: { bottom: -1, right: -1, borderLeftWidth: 0, borderTopWidth: 0 },
-  overlayBottom: {
+  tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 4 },
+  tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 4 },
+  bl: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 4 },
+  br: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 4 },
+  footer: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    padding: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Spacing.md,
-    backgroundColor: 'rgba(8, 21, 22, 0.5)',
   },
   status: {
     flex: 1,
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 15,
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   torchBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 16,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
   },

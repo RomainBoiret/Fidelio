@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Fonts, Radius } from '@/constants/theme';
+import { Fonts, FontWeight, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 type Props = {
@@ -29,8 +29,9 @@ export function GalleryMark({ size = 36, withWordmark = false }: Props) {
           style={[
             styles.f,
             {
-              color: colors.backgroundElevated,
+              color: '#FFFFFF',
               fontFamily: Fonts.displayBold,
+              fontWeight: FontWeight.heavy,
               fontSize: mark * 0.42,
               lineHeight: mark * 0.5,
             },
@@ -51,7 +52,16 @@ export function GalleryMark({ size = 36, withWordmark = false }: Props) {
         />
       </View>
       {withWordmark ? (
-        <Text style={[styles.word, { color: colors.ink, fontFamily: Fonts.displayBold }]}>
+        <Text
+          style={[
+            styles.word,
+            {
+              color: colors.ink,
+              fontFamily: Fonts.displayBold,
+              fontWeight: FontWeight.heavy,
+            },
+          ]}
+        >
           Fidelio
         </Text>
       ) : null}
@@ -72,7 +82,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   f: {
-    fontWeight: '700',
+    fontWeight: '800',
   },
   accent: {
     position: 'absolute',
@@ -80,7 +90,7 @@ const styles = StyleSheet.create({
     left: 5,
   },
   word: {
-    fontSize: 18,
-    letterSpacing: -0.4,
+    fontSize: 19,
+    letterSpacing: -0.55,
   },
 });

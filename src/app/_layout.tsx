@@ -7,13 +7,33 @@ import { CardsProvider } from '@/data/store/cards-context';
 import { Colors } from '@/constants/theme';
 import { useAppFonts } from '@/hooks/use-app-fonts';
 
+const isWeb = Platform.OS === 'web';
+
+/**
+ * Snappy navigation — short durations, modern fade/push presets.
+ * Users feel speed; gestures stay enabled for natural dismiss.
+ */
+const NAV = {
+  /** Card detail / in-flow pushes */
+  push: isWeb ? 180 : 240,
+  /** Sheets: add, profile, manual entry */
+  modal: isWeb ? 200 : 260,
+  /** Full-screen takeover: scan, checkout */
+  takeover: isWeb ? 150 : 200,
+  /** Home settle */
+  home: isWeb ? 160 : 220,
+} as const;
+
+const pushAnimation = isWeb ? 'fade' : 'simple_push';
+const modalAnimation = isWeb ? 'fade' : 'fade_from_bottom';
+const takeoverAnimation = 'fade';
+
 export default function RootLayout() {
   useAppFonts();
 
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const isWeb = Platform.OS === 'web';
 
   return (
     <CardsProvider>
@@ -29,22 +49,52 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.background },
-          animation: isWeb ? 'none' : 'slide_from_right',
-          animationDuration: 280,
-          gestureEnabled: !isWeb,
+          animation: pushAnimation,
+          animationDuration: NAV.push,
+          gestureEnabled: true,
           fullScreenGestureEnabled: !isWeb,
+          animationMatchesGesture: true,
           title: 'Fidelio',
         }}
       >
-        <Stack.Screen name="(tabs)" options={{ title: 'Fidelio', animation: 'fade' }} />
+        <Stack.Screen
+          name="index"
+          options={{
+            title: 'Fidelio',
+            animation: 'fade',
+            animationDuration: NAV.home,
+          }}
+        />
+        <Stack.Screen
+          name="add"
+          options={{
+            title: 'Add a card',
+            presentation: 'modal',
+            animation: modalAnimation,
+            animationDuration: NAV.modal,
+            gestureEnabled: true,
+            gestureDirection: 'vertical',
+          }}
+        />
+        <Stack.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            presentation: 'modal',
+            animation: modalAnimation,
+            animationDuration: NAV.modal,
+            gestureEnabled: true,
+            gestureDirection: 'vertical',
+          }}
+        />
         <Stack.Screen
           name="scan"
           options={{
             title: 'Scan',
-            presentation: 'modal',
-            animation: isWeb ? 'none' : 'slide_from_bottom',
-            animationDuration: 300,
-            gestureEnabled: !isWeb,
+            presentation: 'fullScreenModal',
+            animation: takeoverAnimation,
+            animationDuration: NAV.takeover,
+            gestureEnabled: true,
           }}
         />
         <Stack.Screen
@@ -52,18 +102,19 @@ export default function RootLayout() {
           options={{
             title: 'New card',
             presentation: 'modal',
-            animation: isWeb ? 'none' : 'slide_from_bottom',
-            animationDuration: 320,
-            gestureEnabled: !isWeb,
+            animation: modalAnimation,
+            animationDuration: NAV.modal,
+            gestureEnabled: true,
+            gestureDirection: 'vertical',
           }}
         />
         <Stack.Screen
           name="card/[id]/index"
           options={{
             title: 'Card details',
-            animation: isWeb ? 'none' : 'slide_from_right',
-            animationDuration: 280,
-            gestureEnabled: !isWeb,
+            animation: pushAnimation,
+            animationDuration: NAV.push,
+            gestureEnabled: true,
             fullScreenGestureEnabled: !isWeb,
           }}
         />
@@ -72,9 +123,9 @@ export default function RootLayout() {
           options={{
             title: 'Checkout code',
             presentation: 'fullScreenModal',
-            animation: isWeb ? 'none' : 'fade',
-            animationDuration: 220,
-            gestureEnabled: !isWeb,
+            animation: takeoverAnimation,
+            animationDuration: NAV.takeover,
+            gestureEnabled: true,
           }}
         />
       </Stack>

@@ -1,32 +1,50 @@
 import { CameraView } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
-import { useIsFocused, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
-import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import {
+  Linking,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { ScanCameraPanel } from '@/components/scan/scan-camera-panel';
+import { WalletAtmosphere } from '@/components/brand/wallet-atmosphere';
 import { Button } from '@/components/ui/button';
-import { GalleryHeader } from '@/components/ui/gallery-header';
-import { IconButton } from '@/components/ui/icon-button';
-import { Screen } from '@/components/ui/screen';
-import { SoftCard } from '@/components/ui/soft-card';
 import { useCards } from '@/data/store/cards-context';
 import { formatCollectionNo } from '@/domain/gallery';
-import { labelsFromScan, LOYALTY_BARCODE_TYPES, mapBarcodeType } from '@/domain/scan';
-import { Fonts, Spacing } from '@/constants/theme';
+import {
+  barcodeTypesForMode,
+  labelsFromScan,
+  mapBarcodeType,
+  parseScanMode,
+  scanCopy,
+} from '@/domain/scan';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useSafeBack } from '@/hooks/use-safe-back';
 import { useScanPermissions } from '@/hooks/use-scan-permissions';
 import { useTheme } from '@/hooks/use-theme';
 
+/** Full-screen mobile scanner — QR square or barcode strip. */
 export default function ScanScreen() {
   const colors = useTheme();
   const router = useRouter();
   const goBack = useSafeBack('/add');
+  const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
+  const params = useLocalSearchParams<{ mode?: string }>();
+  const mode = parseScanMode(params.mode);
+  const copy = scanCopy(mode);
   const { cards, addCard } = useCards();
   const [permission, requestPermission] = useScanPermissions();
   const [locked, setLocked] = React.useState(false);
-  const [status, setStatus] = React.useState('Align the barcode in the frame');
+  const [status, setStatus] = React.useState(copy.hint);
   const [systemScanning, setSystemScanning] = React.useState(false);
   const lockedRef = React.useRef(false);
 
@@ -35,16 +53,20 @@ export default function ScanScreen() {
     Platform.OS !== 'web' && CameraView.isModernBarcodeScannerAvailable;
 
   React.useEffect(() => {
+    setStatus(copy.hint);
+  }, [copy.hint]);
+
+  React.useEffect(() => {
     if (!isFocused) {
       lockedRef.current = false;
       setLocked(false);
-      setStatus('Align the barcode in the frame');
+      setStatus(copy.hint);
       setSystemScanning(false);
       if (Platform.OS === 'ios') {
         void CameraView.dismissScanner().catch(() => undefined);
       }
     }
-  }, [isFocused]);
+  }, [isFocused, copy.hint]);
 
   const handlePayload = React.useCallback(
     async ({ data, type }: { data: string; type: string }) => {
@@ -61,7 +83,7 @@ export default function ScanScreen() {
         const code = data.trim();
         const existing = cards.find((c) => c.codeValue === code);
         if (existing) {
-          setStatus('Already in your gallery');
+          setStatus('Already in your wallet');
           router.replace(`/card/${existing.id}`);
           return;
         }
@@ -84,12 +106,12 @@ export default function ScanScreen() {
         setTimeout(() => {
           lockedRef.current = false;
           setLocked(false);
-          setStatus('Align the barcode in the frame');
+          setStatus(copy.hint);
           setSystemScanning(false);
         }, 1600);
       }
     },
-    [addCard, cards, router],
+    [addCard, cards, copy.hint, router],
   );
 
   React.useEffect(() => {
@@ -107,7 +129,7 @@ export default function ScanScreen() {
       setSystemScanning(true);
       setStatus('System scanner…');
       await CameraView.launchScanner({
-        barcodeTypes: LOYALTY_BARCODE_TYPES,
+        barcodeTypes: barcodeTypesForMode(mode),
         isGuidanceEnabled: true,
         isHighlightingEnabled: true,
       });
@@ -117,27 +139,40 @@ export default function ScanScreen() {
     }
   }
 
-  const close = (
-    <IconButton name="close" tone="secondary" onPress={goBack} accessibilityLabel="Close" />
-  );
-
   if (!permission) {
     return (
-      <Screen padded={false} edges={['left', 'right']}>
-        <GalleryHeader title="Scan" subtitle="Getting the camera ready…" right={close} />
-      </Screen>
+      <View style={[styles.root, { backgroundColor: '#0A0A0A', paddingTop: insets.top }]}>
+        <StatusBar style="light" />
+        <Text style={[styles.boot, { fontFamily: Fonts.body }]}>Getting the camera ready…</Text>
+      </View>
     );
   }
 
   if (!permission.granted) {
     return (
-      <Screen padded={false} edges={['left', 'right']}>
-        <GalleryHeader
-          title="Allow scanning"
-          subtitle="Fidelio reads QR and barcodes to add a card."
-          right={close}
-        />
-        <View style={[styles.sheet, { backgroundColor: colors.background }]}>
+      <View style={[styles.root, styles.permissionRoot]}>
+        <WalletAtmosphere intensity="soft" />
+        <View
+          style={[
+            styles.permission,
+            { paddingTop: insets.top + Spacing.lg },
+          ]}
+        >
+          <StatusBar style="dark" />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+            onPress={goBack}
+            style={styles.closeLight}
+          >
+            <MaterialCommunityIcons name="close" size={22} color={colors.ink} />
+          </Pressable>
+          <Text style={[styles.permTitle, { color: colors.ink, fontFamily: Fonts.displayBold }]}>
+            Allow camera
+          </Text>
+          <Text style={[styles.permBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
+            Fidelio needs the camera to scan {mode === 'qr' ? 'QR codes' : 'barcodes'} onto your wallet.
+          </Text>
           <Button label="Allow camera" onPress={() => void requestPermission()} />
           {!permission.canAskAgain ? (
             <Button
@@ -147,69 +182,167 @@ export default function ScanScreen() {
             />
           ) : null}
         </View>
-      </Screen>
+      </View>
     );
   }
 
   return (
-    <Screen padded={false} edges={['left', 'right']}>
-      <GalleryHeader
-        title="Scan a card"
-        subtitle="Frame the barcode strip, then confirm the details."
-        right={close}
+    <View style={styles.root}>
+      <StatusBar style="light" />
+      <ScanCameraPanel
+        active={showCamera}
+        locked={locked}
+        mode={mode}
+        accentColor={colors.accent}
+        statusLabel={status}
+        onBarcode={handlePayload}
       />
 
-      <View style={[styles.sheet, { backgroundColor: colors.background }]}>
-        <ScanCameraPanel
-          active={showCamera}
-          locked={locked}
-          accentColor={colors.accent}
-          statusLabel={status}
-          onBarcode={handlePayload}
-        />
+      <View
+        pointerEvents="box-none"
+        style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+          onPress={goBack}
+          hitSlop={8}
+          style={styles.closeDark}
+        >
+          <MaterialCommunityIcons name="close" size={22} color="#FFFFFF" />
+        </Pressable>
 
-        <SoftCard style={styles.hintCard}>
-          <Text style={[styles.hintTitle, { color: colors.text, fontFamily: Fonts.display }]}>
-            Tip
+        <View style={styles.titleBlock}>
+          <Text style={[styles.title, { fontFamily: Fonts.displayBold }]}>{copy.title}</Text>
+          <Text style={[styles.subtitle, { fontFamily: Fonts.body }]} numberOfLines={2}>
+            {copy.tip}
           </Text>
-          <Text style={[styles.hintBody, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
-            Hold the barcode flat, about 10–15 cm away, without glare.
-          </Text>
+        </View>
 
-          {canUseSystemScanner ? (
-            <Button
-              label="Open system scanner"
-              onPress={() => void openSystemScanner()}
-              style={{ marginTop: Spacing.md }}
-            />
-          ) : null}
-
-          <Button
-            label="Enter manually instead"
-            variant="ghost"
-            onPress={() => router.push('/card/new')}
-            style={{ marginTop: Spacing.sm }}
-          />
-        </SoftCard>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Enter manually"
+          onPress={() => router.push('/card/new')}
+          hitSlop={8}
+          style={styles.closeDark}
+        >
+          <MaterialCommunityIcons name="keyboard-outline" size={22} color="#FFFFFF" />
+        </Pressable>
       </View>
-    </Screen>
+
+      {canUseSystemScanner ? (
+        <View
+          pointerEvents="box-none"
+          style={[styles.systemWrap, { bottom: insets.bottom + 88 }]}
+        >
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open system scanner"
+            onPress={() => void openSystemScanner()}
+            style={styles.systemBtn}
+          >
+            <Text style={{ color: '#FFF', fontFamily: Fonts.bodyMedium, fontSize: 13 }}>
+              System scanner
+            </Text>
+          </Pressable>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sheet: {
-    paddingHorizontal: Spacing.xl,
-    gap: Spacing.lg,
-    paddingBottom: 40,
+  root: {
+    flex: 1,
+    backgroundColor: '#0A0A0A',
   },
-  hintCard: {
+  boot: {
+    color: 'rgba(255,255,255,0.75)',
+    textAlign: 'center',
+    marginTop: 48,
+    fontSize: 15,
+  },
+  permissionRoot: {
+    backgroundColor: '#E8EAF6',
+  },
+  permission: {
+    flex: 1,
+    zIndex: 1,
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.md,
+  },
+  closeLight: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.md,
+  },
+  permTitle: {
+    fontSize: 28,
+    letterSpacing: -0.6,
+  },
+  permBody: {
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: Spacing.md,
+  },
+  topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: Spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+  },
+  closeDark: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleBlock: {
+    flex: 1,
+    paddingTop: 6,
     gap: 4,
   },
-  hintTitle: {
+  title: {
+    color: '#FFFFFF',
     fontSize: 20,
+    letterSpacing: -0.3,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.55)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
-  hintBody: {
-    fontSize: 14,
-    lineHeight: 20,
+  subtitle: {
+    color: 'rgba(255,255,255,0.82)',
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.55)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  systemWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  systemBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(0,0,0,0.45)',
   },
 });

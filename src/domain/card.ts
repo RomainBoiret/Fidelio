@@ -40,14 +40,6 @@ export function normalizeStoreName(value: string): string {
   return value.trim().replace(/\s+/g, ' ');
 }
 
-export function cardInitials(title: string, storeName: string): string {
-  const source = (storeName || title).trim();
-  if (!source) return 'F';
-  const parts = source.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return `${parts[0]![0] ?? ''}${parts[1]![0] ?? ''}`.toUpperCase();
-}
-
 export const CARD_ACCENTS = [
   '#1A3A6B',
   '#C45C3A',

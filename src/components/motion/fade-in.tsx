@@ -4,35 +4,43 @@ import Animated, {
   Easing,
   FadeInDown,
   FadeInUp,
+  ZoomIn,
   useReducedMotion,
 } from 'react-native-reanimated';
+
+import { Motion } from '@/constants/theme';
 
 type Props = {
   children: React.ReactNode;
   delay?: number;
   duration?: number;
   style?: StyleProp<ViewStyle>;
-  direction?: 'up' | 'down';
+  direction?: 'up' | 'down' | 'zoom';
 };
 
-/** Soft entrance. Skipped on web to protect FCP / TBT. */
+/** Soft modern entrance — fade + lift / zoom. */
 export function FadeIn({
   children,
   delay = 0,
-  duration = 520,
+  duration,
   style,
   direction = 'up',
 }: Props) {
   const reduceMotion = useReducedMotion();
+  const ms = duration ?? (Platform.OS === 'web' ? Motion.enter : Motion.editorial);
 
-  if (reduceMotion || Platform.OS === 'web') {
+  if (reduceMotion) {
     return <Animated.View style={style}>{children}</Animated.View>;
   }
 
+  const easing = Platform.OS === 'web' ? Easing.out(Easing.cubic) : Easing.out(Easing.cubic);
+
   const entering =
-    direction === 'down'
-      ? FadeInDown.delay(delay).duration(duration).easing(Easing.out(Easing.cubic))
-      : FadeInUp.delay(delay).duration(duration).easing(Easing.out(Easing.cubic));
+    direction === 'zoom'
+      ? ZoomIn.delay(delay).duration(ms).easing(easing)
+      : direction === 'down'
+        ? FadeInDown.delay(delay).duration(ms).easing(easing)
+        : FadeInUp.delay(delay).duration(ms).easing(easing);
 
   return (
     <Animated.View entering={entering} style={style}>

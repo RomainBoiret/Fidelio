@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 
+import { WalletAtmosphere } from '@/components/brand/wallet-atmosphere';
 import { Button } from '@/components/ui/button';
 import { GalleryHeader } from '@/components/ui/gallery-header';
 import { IconButton } from '@/components/ui/icon-button';
@@ -11,7 +12,7 @@ import { TextField } from '@/components/ui/text-field';
 import { useCards } from '@/data/store/cards-context';
 import { formatBarcodeLabel } from '@/domain/card';
 import { collectionLabel, catalogueIndex } from '@/domain/gallery';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Fonts, FontWeight, Spacing } from '@/constants/theme';
 import { useSafeBack } from '@/hooks/use-safe-back';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -126,76 +127,100 @@ export default function CardDetailScreen() {
 
   if (!card) {
     return (
-      <Screen>
-        <Text style={{ color: colors.text, fontFamily: Fonts.display }}>
-          Card not found
-        </Text>
-        <Button label="Back" variant="secondary" onPress={goBack} />
-      </Screen>
+      <View style={styles.root}>
+        <WalletAtmosphere intensity="soft" />
+        <Screen transparent>
+          <Text style={{ color: colors.ink, fontFamily: Fonts.displayBold, fontSize: 22 }}>
+            Card not found
+          </Text>
+          <Button label="Back" variant="secondary" onPress={goBack} />
+        </Screen>
+      </View>
     );
   }
 
   return (
-    <Screen scroll padded={false} edges={['left', 'right']}>
-      <GalleryHeader
-        title={title || card.title}
-        subtitle={`${storeName || card.storeName} · ${formatBarcodeLabel(card.codeFormat)} · ${collectionLabel(catalogueNo)}`}
-        pieceCount={cards.length}
-        right={<IconButton name="close" tone="secondary" onPress={goBack} />}
-      />
+    <View style={styles.root}>
+      <WalletAtmosphere intensity="rich" />
+      <Screen scroll padded={false} edges={['left', 'right']} transparent>
+        <GalleryHeader
+          title={title || card.title}
+          subtitle={`${storeName || card.storeName} · ${formatBarcodeLabel(card.codeFormat)} · ${collectionLabel(catalogueNo)}`}
+          pieceCount={cards.length}
+          right={<IconButton name="close" tone="secondary" onPress={goBack} />}
+        />
 
-      <View style={[styles.sheet, { backgroundColor: colors.background }]}>
-        <SoftCard style={styles.codePanel}>
-          <Text
-            style={[styles.codeLabel, { color: colors.textMuted, fontFamily: Fonts.bodyMedium }]}
-          >
-            Checkout code
-          </Text>
-          <Text
-            selectable
-            style={[styles.codeValue, { color: colors.text, fontFamily: Fonts.displayBold }]}
-          >
-            {card.codeValue}
-          </Text>
-          <Button
-            label="Present at checkout"
-            onPress={() => router.push(`/card/${card.id}/present`)}
-            style={{ marginTop: Spacing.md }}
-          />
-        </SoftCard>
+        <View style={styles.sheet}>
+          <SoftCard style={styles.codePanel}>
+            <Text
+              style={[
+                styles.codeLabel,
+                {
+                  color: colors.textMuted,
+                  fontFamily: Fonts.bodyMedium,
+                  fontWeight: FontWeight.medium,
+                },
+              ]}
+            >
+              Checkout code
+            </Text>
+            <Text
+              selectable
+              style={[
+                styles.codeValue,
+                {
+                  color: colors.ink,
+                  fontFamily: Fonts.displayBold,
+                  fontWeight: FontWeight.heavy,
+                },
+              ]}
+            >
+              {card.codeValue}
+            </Text>
+            <Button
+              label="Present at checkout"
+              onPress={() => router.push(`/card/${card.id}/present`)}
+              style={{ marginTop: Spacing.md }}
+            />
+          </SoftCard>
 
-        <View style={styles.form}>
-          <TextField label="Name" value={title} onChangeText={setTitle} />
-          <TextField label="Store" value={storeName} onChangeText={setStoreName} />
-          <TextField
-            label="Notes"
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 16 }}
-          />
+          <View style={styles.form}>
+            <TextField label="Name" value={title} onChangeText={setTitle} />
+            <TextField label="Store" value={storeName} onChangeText={setStoreName} />
+            <TextField
+              label="Notes"
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 16 }}
+            />
+          </View>
+
+          {error ? (
+            <Text style={{ color: colors.danger, fontFamily: Fonts.body }}>{error}</Text>
+          ) : null}
+
+          <View style={styles.actions}>
+            <Button
+              label={saving ? 'Saving…' : savedFlash ? 'Saved ✓' : 'Save'}
+              onPress={() => {
+                void onSave();
+              }}
+              disabled={saving || savedFlash}
+            />
+            <Button label="Delete" variant="ghost" onPress={onDelete} disabled={saving} />
+          </View>
         </View>
-
-        {error ? (
-          <Text style={{ color: colors.danger, fontFamily: Fonts.body }}>{error}</Text>
-        ) : null}
-
-        <View style={styles.actions}>
-          <Button
-            label={saving ? 'Saving…' : savedFlash ? 'Saved ✓' : 'Save'}
-            onPress={() => {
-              void onSave();
-            }}
-            disabled={saving || savedFlash}
-          />
-          <Button label="Delete" variant="ghost" onPress={onDelete} disabled={saving} />
-        </View>
-      </View>
-    </Screen>
+      </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#E8EAF6',
+  },
   sheet: {
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.xxxl,
@@ -206,7 +231,7 @@ const styles = StyleSheet.create({
   },
   codeLabel: {
     fontSize: 12,
-    letterSpacing: 0.4,
+    letterSpacing: 0.6,
     textTransform: 'uppercase',
   },
   codeValue: {

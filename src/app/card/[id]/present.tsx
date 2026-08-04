@@ -1,3 +1,4 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useLocalSearchParams } from 'expo-router';
 import * as Brightness from 'expo-brightness';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
@@ -9,8 +10,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LoyaltyBarcode } from '@/components/cards/loyalty-barcode';
 import { useCards } from '@/data/store/cards-context';
 import { formatBarcodeLabel } from '@/domain/card';
-import { Fonts, Spacing } from '@/constants/theme';
+import { displayKind } from '@/domain/barcode-display';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useSafeBack } from '@/hooks/use-safe-back';
+import { useTheme } from '@/hooks/use-theme';
 
 function paramId(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
@@ -20,15 +23,18 @@ function paramId(value: string | string[] | undefined): string | undefined {
 const KEEP_AWAKE_TAG = 'fidelio-checkout';
 
 /**
- * Full-screen checkout mode - max contrast barcode for the cashier scanner.
+ * Full-screen checkout — max-contrast code, landscape barcode for linear formats.
  */
 export default function CardPresentScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const id = paramId(params.id);
   const goBack = useSafeBack(id ? `/card/${id}` : '/');
   const insets = useSafeAreaInsets();
+  const colors = useTheme();
   const { getCardById, markOpened } = useCards();
   const card = id ? getCardById(id) : undefined;
+  const accent = card?.accentColor ?? colors.accent;
+  const isQr = card ? displayKind(card.codeFormat) === 'qr' : false;
 
   React.useEffect(() => {
     if (id) void markOpened(id);
@@ -68,46 +74,99 @@ export default function CardPresentScreen() {
 
   if (!card) {
     return (
-      <View style={[styles.root, { paddingTop: insets.top + Spacing.lg }]}>
-        <Text style={styles.missing}>Card not found</Text>
-        <Pressable onPress={goBack} style={styles.closeHit}>
-          <Text style={styles.closeText}>Close</Text>
+      <View
+        style={[
+          styles.root,
+          {
+            backgroundColor: '#E8EAF6',
+            paddingTop: insets.top + Spacing.lg,
+            paddingHorizontal: Spacing.xl,
+          },
+        ]}
+      >
+        <StatusBar style="dark" />
+        <Text style={[styles.missing, { color: colors.ink, fontFamily: Fonts.displayBold }]}>
+          Card not found
+        </Text>
+        <Pressable
+          onPress={goBack}
+          style={[styles.closeHit, styles.closeGlass]}
+        >
+          <MaterialCommunityIcons name="close" size={22} color={colors.ink} />
         </Pressable>
       </View>
     );
   }
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: '#E8EAF6' }]}>
       <StatusBar style="dark" />
-      <View style={[styles.top, { paddingTop: insets.top + Spacing.md }]}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.store} numberOfLines={1}>
+
+      <View style={[styles.accentRail, { backgroundColor: accent }]} />
+
+      <View
+        style={[
+          styles.top,
+          {
+            paddingTop: insets.top + Spacing.md,
+            paddingLeft: Spacing.xl + 10,
+          },
+        ]}
+      >
+        <View style={styles.topCopy}>
+          <Text style={[styles.kicker, { color: colors.accent, fontFamily: Fonts.bodyMedium }]}>
+            Checkout
+          </Text>
+          <Text
+            style={[styles.store, { color: colors.ink, fontFamily: Fonts.displayBold }]}
+            numberOfLines={1}
+          >
             {card.storeName}
           </Text>
-          <Text style={styles.title} numberOfLines={1}>
-            {card.title}
+          <Text
+            style={[styles.meta, { color: colors.textSecondary, fontFamily: Fonts.body }]}
+            numberOfLines={1}
+          >
+            {card.title} · {formatBarcodeLabel(card.codeFormat)}
           </Text>
-          <Text style={styles.format}>{formatBarcodeLabel(card.codeFormat)}</Text>
         </View>
+
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close"
           onPress={goBack}
-          style={styles.closeHit}
+          style={[styles.closeHit, styles.closeGlass]}
           hitSlop={12}
         >
-          <Text style={styles.closeText}>Close</Text>
+          <MaterialCommunityIcons name="close" size={22} color={colors.ink} />
         </Pressable>
       </View>
 
       <View style={styles.stage}>
-        <LoyaltyBarcode value={card.codeValue} format={card.codeFormat} height={160} />
+        <View style={styles.stageInner}>
+          <LoyaltyBarcode
+            value={card.codeValue}
+            format={card.codeFormat}
+            landscape={!isQr}
+            showValue
+          />
+        </View>
       </View>
 
-      <Text style={[styles.hint, { paddingBottom: insets.bottom + Spacing.lg }]}>
-        Point the screen at the reader · max brightness
-      </Text>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + Spacing.lg }]}>
+        <View style={[styles.hintPill, styles.hintGlass]}>
+          <MaterialCommunityIcons
+            name={isQr ? 'qrcode-scan' : 'phone-rotate-landscape'}
+            size={18}
+            color={colors.textSecondary}
+          />
+          <Text style={[styles.hint, { color: colors.textSecondary, fontFamily: Fonts.body }]}>
+            {isQr
+              ? 'Center the QR on the reader · max brightness'
+              : 'Hold sideways toward the reader · max brightness'}
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -115,7 +174,13 @@ export default function CardPresentScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+  },
+  accentRail: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 8,
   },
   top: {
     flexDirection: 'row',
@@ -124,59 +189,102 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.md,
   },
-  store: {
-    color: '#77746E',
+  topCopy: {
+    flex: 1,
+    gap: 4,
+    paddingRight: Spacing.sm,
+  },
+  kicker: {
     fontSize: 11,
-    letterSpacing: 1.4,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
-    fontFamily: Fonts.bodyMedium,
   },
-  title: {
-    color: '#171717',
-    fontSize: 24,
-    fontFamily: Fonts.display,
-    letterSpacing: -0.3,
-    marginTop: 4,
+  store: {
+    fontSize: 26,
+    letterSpacing: -0.5,
+    lineHeight: 32,
   },
-  format: {
-    color: '#77746E',
-    fontSize: 12,
-    fontFamily: Fonts.body,
-    marginTop: 4,
+  meta: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   closeHit: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 2,
-    borderWidth: 1.5,
-    borderColor: '#315CFF',
-    backgroundColor: '#FFFEFA',
-    minHeight: 44,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  closeText: {
-    color: '#315CFF',
-    fontFamily: Fonts.bodyBold,
-    fontSize: 14,
+  closeGlass: {
+    borderColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    ...(Platform.OS === 'web'
+      ? ({
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        } as object)
+      : null),
   },
   stage: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+  },
+  stageInner: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
+    borderRadius: Radius.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.85)',
+    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.md,
+    ...Platform.select({
+      web: { boxShadow: '0 16px 40px rgba(70, 90, 160, 0.12)' },
+      default: {
+        shadowColor: '#465AA0',
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.12,
+        shadowRadius: 24,
+        elevation: 4,
+      },
+    }),
+  },
+  footer: {
+    paddingHorizontal: Spacing.xl,
+    alignItems: 'center',
+  },
+  hintPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 12,
+    borderRadius: Radius.lg,
+    maxWidth: 360,
+  },
+  hintGlass: {
+    backgroundColor: 'rgba(255,255,255,0.45)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.7)',
+    ...(Platform.OS === 'web'
+      ? ({
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        } as object)
+      : null),
   },
   hint: {
-    textAlign: 'center',
-    color: '#77746E',
+    flex: 1,
     fontSize: 13,
-    fontFamily: Fonts.body,
-    paddingHorizontal: Spacing.xl,
+    lineHeight: 18,
   },
   missing: {
-    color: '#171717',
-    fontSize: 18,
-    fontFamily: Fonts.display,
+    fontSize: 22,
+    letterSpacing: -0.4,
     textAlign: 'center',
     marginBottom: Spacing.lg,
   },

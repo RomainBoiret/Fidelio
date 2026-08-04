@@ -1,39 +1,32 @@
 import * as React from 'react';
-import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
+import { GlassSurface } from '@/components/ui/glass-surface';
 import { Radius, Shadow, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
 
-type Props = ViewProps & {
+type Props = {
   children: React.ReactNode;
   padded?: boolean;
+  style?: StyleProp<ViewStyle>;
 };
 
-export function SoftCard({ children, style, padded = true, ...rest }: Props) {
-  const colors = useTheme();
-
+/** Frosted glass panel — shared card surface across the app. */
+export function SoftCard({ children, style, padded = true }: Props) {
   return (
-    <View
-      style={[
-        styles.card,
-        Shadow.card,
-        {
-          backgroundColor: colors.backgroundElevated,
-          ...(Platform.OS === 'web' ? null : { shadowColor: colors.shadow }),
-        },
-        padded && styles.padded,
-        style,
-      ]}
-      {...rest}
+    <GlassSurface
+      tone="pass"
+      radius={Radius.lg}
+      style={[styles.card, Shadow.ticket]}
+      contentStyle={[padded ? styles.padded : null, style]}
     >
       {children}
-    </View>
+    </GlassSurface>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Radius.md,
+    width: '100%',
   },
   padded: {
     padding: Spacing.lg,

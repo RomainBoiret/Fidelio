@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { type StyleProp, type ViewStyle } from 'react-native';
+import { type StyleProp, type ViewStyle, Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { Pressable } from 'react-native';
+
+import { Motion } from '@/constants/theme';
 
 type Props = {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ type Props = {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-/** Subtle spring scale on press - feels soft, not bouncy-toy. */
+/** Apple-soft spring press. */
 export function PressableScale({
   children,
   onPress,
@@ -43,12 +44,12 @@ export function PressableScale({
       onPress={onPress}
       onPressIn={() => {
         if (!reduceMotion) {
-          scale.value = withSpring(0.97, { damping: 18, stiffness: 320 });
+          scale.value = withSpring(0.94, Motion.spring.snappy);
         }
       }}
       onPressOut={() => {
         if (!reduceMotion) {
-          scale.value = withSpring(1, { damping: 14, stiffness: 220 });
+          scale.value = withSpring(1, Motion.spring.soft);
         }
       }}
       style={[animatedStyle, style]}

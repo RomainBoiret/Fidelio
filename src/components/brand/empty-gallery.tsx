@@ -31,7 +31,7 @@ export function EmptyGallery({ size = 160 }: Props) {
           width="76"
           height="46"
           rx="10"
-          fill={colors.backgroundElevated}
+          fill="#FFFFFF"
           stroke={colors.stone}
           strokeWidth={1}
         />

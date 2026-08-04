@@ -2,11 +2,11 @@ import type { BarcodeType } from 'expo-camera';
 
 import type { BarcodeFormat } from '@/domain/types';
 
-/**
- * Loyalty card formats - 1D barcodes first (the real checkout id).
- * QR last: often a link / something else.
- */
-export const LOYALTY_BARCODE_TYPES: BarcodeType[] = [
+/** Scanner mode — viewfinder shape and accepted code formats. */
+export type ScanMode = 'barcode' | 'qr';
+
+/** Linear / strip barcodes on loyalty cards. */
+export const BARCODE_SCAN_TYPES: BarcodeType[] = [
   'code128',
   'code39',
   'ean13',
@@ -16,10 +16,34 @@ export const LOYALTY_BARCODE_TYPES: BarcodeType[] = [
   'codabar',
   'itf14',
   'pdf417',
-  'qr',
-  'aztec',
-  'datamatrix',
 ];
+
+/** Square 2D codes (QR scanner). */
+export const QR_SCAN_TYPES: BarcodeType[] = ['qr', 'aztec', 'datamatrix'];
+
+export function barcodeTypesForMode(mode: ScanMode): BarcodeType[] {
+  return mode === 'qr' ? QR_SCAN_TYPES : BARCODE_SCAN_TYPES;
+}
+
+export function parseScanMode(value: string | string[] | undefined): ScanMode {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return raw === 'qr' ? 'qr' : 'barcode';
+}
+
+export function scanCopy(mode: ScanMode) {
+  if (mode === 'qr') {
+    return {
+      title: 'Scan QR code',
+      hint: 'Center the QR code in the square',
+      tip: 'Hold steady about 15–20 cm away. Avoid glare on the pass.',
+    };
+  }
+  return {
+    title: 'Scan barcode',
+    hint: 'Align the barcode strip in the frame',
+    tip: 'Hold the barcode flat, about 10–15 cm away, without glare.',
+  };
+}
 
 export function mapBarcodeType(type: string): BarcodeFormat {
   switch (type) {

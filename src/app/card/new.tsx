@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import * as React from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
+import { WalletAtmosphere } from '@/components/brand/wallet-atmosphere';
 import { Button } from '@/components/ui/button';
 import { GalleryHeader } from '@/components/ui/gallery-header';
 import { IconButton } from '@/components/ui/icon-button';
@@ -11,10 +12,8 @@ import { useCards } from '@/data/store/cards-context';
 import { guessBarcodeFormat } from '@/domain/card';
 import { Spacing } from '@/constants/theme';
 import { useSafeBack } from '@/hooks/use-safe-back';
-import { useTheme } from '@/hooks/use-theme';
 
 export default function NewCardScreen() {
-  const colors = useTheme();
   const router = useRouter();
   const goBack = useSafeBack('/add');
   const { addCard } = useCards();
@@ -52,59 +51,66 @@ export default function NewCardScreen() {
   }
 
   return (
-    <Screen scroll padded={false} edges={['left', 'right']}>
-      <GalleryHeader
-        title="Manual entry"
-        subtitle="Handy when scanning is awkward, or when you want to paste a code."
-        right={<IconButton name="close" tone="secondary" onPress={goBack} />}
-      />
+    <View style={styles.root}>
+      <WalletAtmosphere intensity="rich" />
+      <Screen scroll padded={false} edges={['left', 'right']} transparent>
+        <GalleryHeader
+          title="Manual entry"
+          subtitle="Handy when scanning is awkward, or when you want to paste a code."
+          right={<IconButton name="close" tone="secondary" onPress={goBack} />}
+        />
 
-      <View style={[styles.sheet, { backgroundColor: colors.background }]}>
-        <View style={styles.form}>
-          <TextField
-            label="Name"
-            placeholder="Loyalty card"
-            value={title}
-            onChangeText={setTitle}
-          />
-          <TextField
-            label="Store"
-            placeholder="Walmart, Starbucks…"
-            value={storeName}
-            onChangeText={setStoreName}
-          />
-          <TextField
-            label="Code"
-            placeholder="1234567890123"
-            value={codeValue}
-            onChangeText={setCodeValue}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <TextField
-            label="Notes"
-            placeholder="Optional"
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 16 }}
-          />
-        </View>
+        <View style={styles.sheet}>
+          <View style={styles.form}>
+            <TextField
+              label="Name"
+              placeholder="Loyalty card"
+              value={title}
+              onChangeText={setTitle}
+            />
+            <TextField
+              label="Store"
+              placeholder="Walmart, Starbucks…"
+              value={storeName}
+              onChangeText={setStoreName}
+            />
+            <TextField
+              label="Code"
+              placeholder="1234567890123"
+              value={codeValue}
+              onChangeText={setCodeValue}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TextField
+              label="Notes"
+              placeholder="Optional"
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 16 }}
+            />
+          </View>
 
-        <View style={styles.actions}>
-          <Button
-            label={saving ? 'Saving…' : 'Save'}
-            onPress={() => void onSave()}
-            disabled={saving}
-          />
-          <Button label="Cancel" variant="ghost" onPress={goBack} />
+          <View style={styles.actions}>
+            <Button
+              label={saving ? 'Saving…' : 'Save'}
+              onPress={() => void onSave()}
+              disabled={saving}
+            />
+            <Button label="Cancel" variant="ghost" onPress={goBack} />
+          </View>
         </View>
-      </View>
-    </Screen>
+      </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#E8EAF6',
+  },
   sheet: {
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.xxxl,
