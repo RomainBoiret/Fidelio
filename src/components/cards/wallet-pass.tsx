@@ -143,14 +143,14 @@ export function WalletPass({ card, index, stacked = true }: Props) {
                 {maskCode(card.codeValue)}
               </Text>
 
-              <Text style={[styles.pipe, { color: 'rgba(90,93,110,0.35)' }]}>|</Text>
+              <Text style={[styles.pipe, { color: colors.borderStrong }]}>|</Text>
 
-              <View style={styles.pill}>
+              <View style={[styles.pill, { backgroundColor: colors.accentSoft }]}>
                 <Text
                   style={[
                     styles.pillText,
                     {
-                      color: '#5B6BB5',
+                      color: colors.accentText,
                       fontFamily: Fonts.bodyMedium,
                       fontWeight: FontWeight.medium,
                     },
@@ -183,12 +183,12 @@ export function WalletPass({ card, index, stacked = true }: Props) {
           accessibilityLabel={`Edit ${card.storeName}`}
           onPress={onDetails}
           hitSlop={10}
-          style={styles.infoBtn}
+          style={[styles.infoBtn, { backgroundColor: colors.surface }]}
         >
           <MaterialCommunityIcons
             name="information-outline"
             size={18}
-            color="rgba(90,93,110,0.7)"
+            color={colors.textSecondary}
           />
         </Pressable>
       </GlassSurface>
@@ -268,7 +268,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
     paddingHorizontal: 9,
     paddingVertical: 2,
-    backgroundColor: 'rgba(120, 130, 200, 0.16)',
     maxWidth: 130,
   },
   pillText: {

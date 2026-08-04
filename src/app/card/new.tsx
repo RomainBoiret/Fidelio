@@ -12,8 +12,10 @@ import { useCards } from '@/data/store/cards-context';
 import { guessBarcodeFormat } from '@/domain/card';
 import { Spacing } from '@/constants/theme';
 import { useSafeBack } from '@/hooks/use-safe-back';
+import { useTheme } from '@/hooks/use-theme';
 
 export default function NewCardScreen() {
+  const colors = useTheme();
   const router = useRouter();
   const goBack = useSafeBack('/add');
   const { addCard } = useCards();
@@ -51,7 +53,7 @@ export default function NewCardScreen() {
   }
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       <WalletAtmosphere intensity="rich" />
       <Screen scroll padded={false} edges={['left', 'right']} transparent>
         <GalleryHeader
@@ -109,7 +111,6 @@ export default function NewCardScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#E8EAF6',
   },
   sheet: {
     paddingHorizontal: Spacing.xl,

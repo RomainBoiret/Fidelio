@@ -1,26 +1,21 @@
 import { Stack } from 'expo-router';
 import Head from 'expo-router/head';
 import { StatusBar } from 'expo-status-bar';
-import { Platform, useColorScheme } from 'react-native';
+import { Platform } from 'react-native';
 
 import { CardsProvider } from '@/data/store/cards-context';
-import { Colors } from '@/constants/theme';
 import { useAppFonts } from '@/hooks/use-app-fonts';
+import { useTheme } from '@/hooks/use-theme';
 
 const isWeb = Platform.OS === 'web';
 
 /**
  * Snappy navigation — short durations, modern fade/push presets.
- * Users feel speed; gestures stay enabled for natural dismiss.
  */
 const NAV = {
-  /** Card detail / in-flow pushes */
   push: isWeb ? 180 : 240,
-  /** Sheets: add, profile, manual entry */
   modal: isWeb ? 200 : 260,
-  /** Full-screen takeover: scan, checkout */
   takeover: isWeb ? 150 : 200,
-  /** Home settle */
   home: isWeb ? 160 : 220,
 } as const;
 
@@ -28,23 +23,12 @@ const pushAnimation = isWeb ? 'fade' : 'simple_push';
 const modalAnimation = isWeb ? 'fade' : 'fade_from_bottom';
 const takeoverAnimation = 'fade';
 
-export default function RootLayout() {
-  useAppFonts();
-
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const colors = Colors[isDark ? 'dark' : 'light'];
+function RootNavigator() {
+  const colors = useTheme();
 
   return (
-    <CardsProvider>
-      <Head>
-        <title>Fidelio - Loyalty cards</title>
-        <meta
-          name="description"
-          content="Fidelio stores your loyalty cards: scan, local vault, quick checkout access - even offline."
-        />
-      </Head>
-      <StatusBar style="dark" />
+    <>
+      <StatusBar style={colors.isDark ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -129,6 +113,23 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  useAppFonts();
+
+  return (
+    <CardsProvider>
+      <Head>
+        <title>Fidelio - Loyalty cards</title>
+        <meta
+          name="description"
+          content="Fidelio stores your loyalty cards: scan, local vault, quick checkout access - even offline."
+        />
+      </Head>
+      <RootNavigator />
     </CardsProvider>
   );
 }

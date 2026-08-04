@@ -16,7 +16,7 @@ type Props = TextInputProps & {
   hint?: string;
 };
 
-/** Glass-styled text field. */
+/** Glass-styled text field — follows system light/dark. */
 export function TextField({ label, hint, style, ...rest }: Props) {
   const colors = useTheme();
 
@@ -40,11 +40,8 @@ export function TextField({ label, hint, style, ...rest }: Props) {
           styles.input,
           {
             color: colors.ink,
-            borderColor: 'rgba(255,255,255,0.7)',
-            backgroundColor:
-              Platform.OS === 'web'
-                ? 'rgba(255,255,255,0.42)'
-                : 'rgba(255,255,255,0.72)',
+            borderColor: colors.glassBorder,
+            backgroundColor: colors.inputFill,
             fontFamily: Fonts.body,
             fontWeight: FontWeight.regular,
             ...(Platform.OS === 'web'

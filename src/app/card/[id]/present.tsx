@@ -78,19 +78,25 @@ export default function CardPresentScreen() {
         style={[
           styles.root,
           {
-            backgroundColor: '#E8EAF6',
+            backgroundColor: colors.background,
             paddingTop: insets.top + Spacing.lg,
             paddingHorizontal: Spacing.xl,
           },
         ]}
       >
-        <StatusBar style="dark" />
+        <StatusBar style={colors.isDark ? 'light' : 'dark'} />
         <Text style={[styles.missing, { color: colors.ink, fontFamily: Fonts.displayBold }]}>
           Card not found
         </Text>
         <Pressable
           onPress={goBack}
-          style={[styles.closeHit, styles.closeGlass]}
+          style={[
+            styles.closeHit,
+            {
+              borderColor: colors.glassBorder,
+              backgroundColor: colors.glassChrome,
+            },
+          ]}
         >
           <MaterialCommunityIcons name="close" size={22} color={colors.ink} />
         </Pressable>
@@ -99,8 +105,8 @@ export default function CardPresentScreen() {
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: '#E8EAF6' }]}>
-      <StatusBar style="dark" />
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      <StatusBar style={colors.isDark ? 'light' : 'dark'} />
 
       <View style={[styles.accentRail, { backgroundColor: accent }]} />
 
@@ -135,7 +141,19 @@ export default function CardPresentScreen() {
           accessibilityRole="button"
           accessibilityLabel="Close"
           onPress={goBack}
-          style={[styles.closeHit, styles.closeGlass]}
+          style={[
+            styles.closeHit,
+            {
+              borderColor: colors.glassBorder,
+              backgroundColor: colors.glassChrome,
+              ...(Platform.OS === 'web'
+                ? ({
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                  } as object)
+                : null),
+            },
+          ]}
           hitSlop={12}
         >
           <MaterialCommunityIcons name="close" size={22} color={colors.ink} />
@@ -143,7 +161,28 @@ export default function CardPresentScreen() {
       </View>
 
       <View style={styles.stage}>
-        <View style={styles.stageInner}>
+        <View
+          style={[
+            styles.stageInner,
+            {
+              backgroundColor: colors.barcodeStage,
+              borderColor: colors.glassBorder,
+              ...(Platform.OS === 'web'
+                ? {
+                    boxShadow: colors.isDark
+                      ? '0 16px 40px rgba(0, 0, 0, 0.4)'
+                      : '0 16px 40px rgba(70, 90, 160, 0.12)',
+                  }
+                : {
+                    shadowColor: colors.isDark ? '#000000' : '#465AA0',
+                    shadowOffset: { width: 0, height: 12 },
+                    shadowOpacity: colors.isDark ? 0.4 : 0.12,
+                    shadowRadius: 24,
+                    elevation: 4,
+                  }),
+            },
+          ]}
+        >
           <LoyaltyBarcode
             value={card.codeValue}
             format={card.codeFormat}
@@ -154,7 +193,21 @@ export default function CardPresentScreen() {
       </View>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + Spacing.lg }]}>
-        <View style={[styles.hintPill, styles.hintGlass]}>
+        <View
+          style={[
+            styles.hintPill,
+            {
+              backgroundColor: colors.glassFill,
+              borderColor: colors.glassBorder,
+              ...(Platform.OS === 'web'
+                ? ({
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                  } as object)
+                : null),
+            },
+          ]}
+        >
           <MaterialCommunityIcons
             name={isQr ? 'qrcode-scan' : 'phone-rotate-landscape'}
             size={18}
@@ -216,16 +269,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  closeGlass: {
-    borderColor: 'rgba(255,255,255,0.7)',
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    ...(Platform.OS === 'web'
-      ? ({
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        } as object)
-      : null),
-  },
   stage: {
     flex: 1,
     alignItems: 'center',
@@ -236,22 +279,10 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
     borderRadius: Radius.xl,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.85)',
     paddingVertical: Spacing.xl,
     paddingHorizontal: Spacing.md,
-    ...Platform.select({
-      web: { boxShadow: '0 16px 40px rgba(70, 90, 160, 0.12)' },
-      default: {
-        shadowColor: '#465AA0',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.12,
-        shadowRadius: 24,
-        elevation: 4,
-      },
-    }),
   },
   footer: {
     paddingHorizontal: Spacing.xl,
@@ -265,17 +296,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: Radius.lg,
     maxWidth: 360,
-  },
-  hintGlass: {
-    backgroundColor: 'rgba(255,255,255,0.45)',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.7)',
-    ...(Platform.OS === 'web'
-      ? ({
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        } as object)
-      : null),
   },
   hint: {
     flex: 1,

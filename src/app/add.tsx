@@ -50,7 +50,7 @@ export default function AddScreen() {
   const { cards } = useCards();
 
   return (
-    <View style={[styles.root, { backgroundColor: '#E8EAF6' }]}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       <WalletAtmosphere intensity="rich" />
       <Screen padded={false} edges={['left', 'right']} transparent>
         <GalleryHeader

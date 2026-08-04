@@ -16,7 +16,8 @@ export default function Root({ children }: PropsWithChildren) {
           name="description"
           content="Fidelio is your personal gallery of loyalty cards — scan, collect, and present at checkout."
         />
-        <meta name="theme-color" content="#E8EAF6" />
+        <meta name="theme-color" content="#E8EAF6" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#12141F" media="(prefers-color-scheme: dark)" />
         <meta name="application-name" content="Fidelio" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
@@ -57,10 +58,10 @@ const responsiveBackground = `
   }
   @media (prefers-color-scheme: dark) {
     html, body, #root {
-      background-color: #131210;
+      background-color: #12141F;
     }
     body {
-      color: #F4F2EC;
+      color: #EEF0FA;
     }
   }
 `;

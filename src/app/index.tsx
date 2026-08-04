@@ -80,7 +80,7 @@ export default function WalletScreen() {
           .easing(Easing.out(Easing.cubic));
 
   return (
-    <View style={[styles.root, { backgroundColor: '#E8EAF6' }]}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       <WalletAtmosphere intensity="rich" />
 
       <Animated.View
@@ -227,7 +227,24 @@ export default function WalletScreen() {
         style={[styles.fabWrap, { bottom: Math.max(insets.bottom, 18) }]}
       >
         <Animated.View style={[styles.fabHalo, fabMotion]}>
-          <View style={styles.fabHaloRing} />
+          <View
+            style={[
+              styles.fabHaloRing,
+              {
+                backgroundColor: colors.fabHalo,
+                borderColor: colors.glassBorder,
+                ...(Platform.OS === 'web'
+                  ? ({
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      boxShadow: colors.isDark
+                        ? '0 12px 32px rgba(0, 0, 0, 0.35)'
+                        : '0 12px 32px rgba(70, 90, 160, 0.12)',
+                    } as object)
+                  : null),
+              },
+            ]}
+          />
           <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel="Add a card"
@@ -251,7 +268,7 @@ export default function WalletScreen() {
               },
             ]}
           >
-            <MaterialCommunityIcons name="plus" size={28} color="#FFFFFF" />
+            <MaterialCommunityIcons name="plus" size={28} color={colors.onAccent} />
           </AnimatedPressable>
         </Animated.View>
       </View>
@@ -380,16 +397,7 @@ const styles = StyleSheet.create({
   fabHaloRing: {
     ...StyleSheet.absoluteFill,
     borderRadius: Radius.full,
-    backgroundColor: 'rgba(255,255,255,0.45)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.7)',
-    ...(Platform.OS === 'web'
-      ? ({
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          boxShadow: '0 12px 32px rgba(70, 90, 160, 0.12)',
-        } as object)
-      : null),
   },
   fab: {
     width: 60,

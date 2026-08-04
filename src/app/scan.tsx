@@ -150,7 +150,7 @@ export default function ScanScreen() {
 
   if (!permission.granted) {
     return (
-      <View style={[styles.root, styles.permissionRoot]}>
+      <View style={[styles.root, { backgroundColor: colors.background }]}>
         <WalletAtmosphere intensity="soft" />
         <View
           style={[
@@ -158,12 +158,18 @@ export default function ScanScreen() {
             { paddingTop: insets.top + Spacing.lg },
           ]}
         >
-          <StatusBar style="dark" />
+          <StatusBar style={colors.isDark ? 'light' : 'dark'} />
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close"
             onPress={goBack}
-            style={styles.closeLight}
+            style={[
+              styles.closeLight,
+              {
+                borderColor: colors.glassBorder,
+                backgroundColor: colors.glassChrome,
+              },
+            ]}
           >
             <MaterialCommunityIcons name="close" size={22} color={colors.ink} />
           </Pressable>
@@ -262,9 +268,6 @@ const styles = StyleSheet.create({
     marginTop: 48,
     fontSize: 15,
   },
-  permissionRoot: {
-    backgroundColor: '#E8EAF6',
-  },
   permission: {
     flex: 1,
     zIndex: 1,
@@ -276,8 +279,6 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: Radius.md,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.7)',
-    backgroundColor: 'rgba(255,255,255,0.5)',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'flex-start',

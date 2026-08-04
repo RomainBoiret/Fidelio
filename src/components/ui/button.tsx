@@ -33,14 +33,14 @@ export function Button({
     variant === 'primary'
       ? colors.accent
       : variant === 'secondary'
-        ? 'rgba(255,255,255,0.45)'
+        ? colors.glassFillStrong
         : variant === 'danger'
           ? colors.danger
           : 'transparent';
 
   const textColor =
     variant === 'primary' || variant === 'danger'
-      ? '#FFFFFF'
+      ? colors.onAccent
       : colors.ink;
 
   return (
@@ -56,7 +56,7 @@ export function Button({
             backgroundColor: background,
             borderColor:
               variant === 'ghost' || variant === 'secondary'
-                ? 'rgba(255,255,255,0.65)'
+                ? colors.glassBorder
                 : 'transparent',
             borderWidth: variant === 'ghost' || variant === 'secondary' ? StyleSheet.hairlineWidth : 0,
             opacity: disabled ? 0.45 : pressed ? 0.92 : 1,

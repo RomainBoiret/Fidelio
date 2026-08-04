@@ -127,7 +127,7 @@ export default function CardDetailScreen() {
 
   if (!card) {
     return (
-      <View style={styles.root}>
+      <View style={[styles.root, { backgroundColor: colors.background }]}>
         <WalletAtmosphere intensity="soft" />
         <Screen transparent>
           <Text style={{ color: colors.ink, fontFamily: Fonts.displayBold, fontSize: 22 }}>
@@ -140,7 +140,7 @@ export default function CardDetailScreen() {
   }
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       <WalletAtmosphere intensity="rich" />
       <Screen scroll padded={false} edges={['left', 'right']} transparent>
         <GalleryHeader
@@ -219,7 +219,6 @@ export default function CardDetailScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#E8EAF6',
   },
   sheet: {
     paddingHorizontal: Spacing.xl,

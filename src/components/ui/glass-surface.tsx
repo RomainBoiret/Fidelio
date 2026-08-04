@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { Glass, Radius } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 type Tone = 'light' | 'clear' | 'chrome' | 'pass';
 
@@ -21,31 +22,9 @@ type Props = {
   radius?: number;
 };
 
-const TONE = {
-  light: {
-    fill: 'rgba(255, 255, 255, 0.42)',
-    border: 'rgba(255, 255, 255, 0.58)',
-    blur: 32,
-  },
-  clear: {
-    fill: 'rgba(255, 255, 255, 0.26)',
-    border: 'rgba(255, 255, 255, 0.45)',
-    blur: 40,
-  },
-  chrome: {
-    fill: 'rgba(255, 255, 255, 0.55)',
-    border: 'rgba(255, 255, 255, 0.7)',
-    blur: 44,
-  },
-  pass: {
-    fill: 'rgba(255, 255, 255, 0.4)',
-    border: 'rgba(255, 255, 255, 0.72)',
-    blur: 20,
-  },
-} as const;
-
 /**
  * Frosted glass — BlurView on native, backdrop-filter on web.
+ * Light/dark fills follow the system theme.
  */
 export function GlassSurface({
   children,
@@ -55,8 +34,25 @@ export function GlassSurface({
   intensity,
   radius = Radius.md,
 }: Props) {
-  const t = TONE[tone];
+  const colors = useTheme();
+
+  const tones = colors.isDark
+    ? {
+        light: { fill: colors.glassFill, border: colors.glassBorder, blur: 36 },
+        clear: { fill: 'rgba(255,255,255,0.05)', border: colors.border, blur: 44 },
+        chrome: { fill: colors.glassChrome, border: colors.borderStrong, blur: 48 },
+        pass: { fill: colors.glassPass, border: colors.glassBorder, blur: 28 },
+      }
+    : {
+        light: { fill: colors.glassFill, border: colors.glassBorder, blur: 32 },
+        clear: { fill: 'rgba(255,255,255,0.26)', border: 'rgba(255,255,255,0.45)', blur: 40 },
+        chrome: { fill: colors.glassChrome, border: colors.borderStrong, blur: 44 },
+        pass: { fill: colors.glassPass, border: colors.glassBorder, blur: 20 },
+      };
+
+  const t = tones[tone];
   const blur = intensity ?? t.blur;
+  const webShadow = colors.isDark ? Glass.webShadowDark : Glass.webShadowLight;
 
   if (Platform.OS === 'web') {
     const webGlass = {
@@ -68,7 +64,7 @@ export function GlassSurface({
     } as ViewStyle;
 
     return (
-      <View style={[styles.shell, Glass.webShadow, webGlass, style]}>
+      <View style={[styles.shell, webShadow, webGlass, style]}>
         <View style={[styles.content, contentStyle]}>{children}</View>
       </View>
     );
@@ -88,7 +84,7 @@ export function GlassSurface({
     >
       <BlurView
         intensity={blur}
-        tint="light"
+        tint={colors.isDark ? 'dark' : 'light'}
         style={StyleSheet.absoluteFill}
       />
       <View

@@ -104,7 +104,7 @@ export default function ProfileScreen() {
           .stiffness(170);
 
   return (
-    <View style={[styles.root, { backgroundColor: '#E8EAF6' }]}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       <WalletAtmosphere intensity="soft" />
 
       <ScrollView
@@ -159,13 +159,17 @@ export default function ProfileScreen() {
                 <View
                   style={[
                     styles.heroMark,
-                    { backgroundColor: colors.ink },
+                    { backgroundColor: colors.isDark ? '#EEF0FA' : colors.ink },
                   ]}
                 >
                   <Text
                     style={[
                       styles.heroF,
-                      { fontFamily: Fonts.displayBold, fontWeight: FontWeight.heavy },
+                      {
+                        color: colors.isDark ? '#12141F' : '#FFFFFF',
+                        fontFamily: Fonts.displayBold,
+                        fontWeight: FontWeight.heavy,
+                      },
                     ]}
                   >
                     F
@@ -347,7 +351,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   heroF: {
-    color: '#FFFFFF',
     fontSize: 22,
   },
   heroCopy: {

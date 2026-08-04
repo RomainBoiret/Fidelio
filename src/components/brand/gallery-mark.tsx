@@ -12,6 +12,8 @@ type Props = {
 export function GalleryMark({ size = 36, withWordmark = false }: Props) {
   const colors = useTheme();
   const mark = Math.max(28, size);
+  const frameBg = colors.isDark ? '#EEF0FA' : colors.ink;
+  const frameFg = colors.isDark ? '#12141F' : '#FFFFFF';
 
   return (
     <View style={styles.row} accessibilityRole="image" accessibilityLabel="Fidelio">
@@ -21,7 +23,7 @@ export function GalleryMark({ size = 36, withWordmark = false }: Props) {
           {
             width: mark,
             height: mark,
-            backgroundColor: colors.ink,
+            backgroundColor: frameBg,
           },
         ]}
       >
@@ -29,7 +31,7 @@ export function GalleryMark({ size = 36, withWordmark = false }: Props) {
           style={[
             styles.f,
             {
-              color: '#FFFFFF',
+              color: frameFg,
               fontFamily: Fonts.displayBold,
               fontWeight: FontWeight.heavy,
               fontSize: mark * 0.42,
